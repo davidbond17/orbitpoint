@@ -88,6 +88,8 @@ class GameScene: SKScene {
         satelliteNode.isClockwise = true
 
         scoreLabel.text = "0"
+
+        AudioManager.shared.playGameStart()
     }
 
     func stopGame() {
@@ -97,6 +99,8 @@ class GameScene: SKScene {
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard isGameActive else { return }
         satelliteNode.reverseDirection()
+        HapticsManager.shared.playDirectionChange()
+        AudioManager.shared.playDirectionChange()
     }
 
     override func update(_ currentTime: TimeInterval) {
@@ -129,8 +133,16 @@ class GameScene: SKScene {
     private func handleGameOver() {
         isGameActive = false
 
+        HapticsManager.shared.playCollision()
+        AudioManager.shared.playCollision()
+
         let isNewHighScore = ScoreManager.shared.endGame()
         let finalScore = ScoreManager.shared.currentScore
+
+        if isNewHighScore {
+            HapticsManager.shared.playNewHighScore()
+            AudioManager.shared.playNewHighScore()
+        }
 
         let flash = SKAction.sequence([
             SKAction.colorize(with: .red, colorBlendFactor: 0.3, duration: 0.1),

@@ -94,6 +94,12 @@ struct GlassButton: ButtonStyle {
             .glassBackground()
             .scaleEffect(configuration.isPressed ? 0.96 : 1.0)
             .animation(.easeOut(duration: 0.15), value: configuration.isPressed)
+            .onChange(of: configuration.isPressed) { _, isPressed in
+                if isPressed {
+                    HapticsManager.shared.playButtonPress()
+                    AudioManager.shared.playButtonTap()
+                }
+            }
     }
 }
 
