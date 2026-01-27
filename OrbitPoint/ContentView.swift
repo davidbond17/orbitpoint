@@ -27,6 +27,7 @@ struct ContentView: View {
                 highScore: viewModel.highScore,
                 onShowGameCenter: {
                     viewModel.showLeaderboard = false
+                    viewModel.showGameCenterLeaderboard()
                 }
             )
             .presentationDetents([.medium])
@@ -42,6 +43,9 @@ struct ContentView: View {
                 viewModel.startGame()
             }
             .transition(.opacity)
+            .onAppear {
+                GameCenterManager.shared.showAccessPoint(true)
+            }
 
         case .playing:
             EmptyView()

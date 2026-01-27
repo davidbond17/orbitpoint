@@ -23,6 +23,10 @@ class GameViewModel: ObservableObject {
         ScoreManager.shared.highScore
     }
 
+    var isGameCenterAuthenticated: Bool {
+        GameCenterManager.shared.isAuthenticated
+    }
+
     private var gameScene: GameScene?
 
     func setGameScene(_ scene: GameScene) {
@@ -31,6 +35,7 @@ class GameViewModel: ObservableObject {
 
     func startGame() {
         gameState = .playing
+        GameCenterManager.shared.showAccessPoint(false)
         gameScene?.startGame()
     }
 
@@ -38,9 +43,18 @@ class GameViewModel: ObservableObject {
         self.lastScore = score
         self.isNewHighScore = isNewHighScore
         gameState = .gameOver
+
+        Task {
+            await GameCenterManager.shared.submitScore(score)
+        }
     }
 
     func returnToMenu() {
         gameState = .menu
+        GameCenterManager.shared.showAccessPoint(true)
+    }
+
+    func showGameCenterLeaderboard() {
+        GameCenterManager.shared.showLeaderboard()
     }
 }
