@@ -1,11 +1,19 @@
 import SpriteKit
 
+protocol GameSceneDelegate: AnyObject {
+    func gameDidEnd(score: Int, isNewHighScore: Bool)
+}
+
 class GameScene: SKScene {
+
+    weak var gameDelegate: GameSceneDelegate?
 
     private var starNode: StarNode!
     private var satelliteNode: SatelliteNode!
-    private var lastUpdateTime: TimeInterval = 0
+    private var debrisSpawner: DebrisSpawner!
+    private var scoreLabel: SKLabelNode!
 
+    private var lastUpdateTime: TimeInterval = 0
     private var isGameActive = false
 
     override init(size: CGSize) {
@@ -20,7 +28,6 @@ class GameScene: SKScene {
     override func didMove(to view: SKView) {
         backgroundColor = Theme.Colors.backgroundSK
         setupScene()
-        startGame()
     }
 
     private func setupScene() {
@@ -37,6 +44,10 @@ class GameScene: SKScene {
         addChild(satelliteNode)
 
         drawOrbitPath(center: center, radius: Theme.Dimensions.orbitRadius)
+
+        debrisSpawner = DebrisSpawner(scene: self)
+
+        setupScoreLabel()
     }
 
     private func drawOrbitPath(center: CGPoint, radius: CGFloat) {
@@ -56,9 +67,27 @@ class GameScene: SKScene {
         addChild(orbitPath)
     }
 
+    private func setupScoreLabel() {
+        scoreLabel = SKLabelNode(fontNamed: "SF Pro Rounded")
+        scoreLabel.fontSize = 48
+        scoreLabel.fontColor = .white
+        scoreLabel.position = CGPoint(x: size.width / 2, y: size.height - 120)
+        scoreLabel.zPosition = 100
+        scoreLabel.horizontalAlignmentMode = .center
+        scoreLabel.text = "0"
+        addChild(scoreLabel)
+    }
+
     func startGame() {
         isGameActive = true
         lastUpdateTime = 0
+
+        debrisSpawner.reset()
+        satelliteNode.clearTrails()
+        satelliteNode.currentAngle = .pi / 2
+        satelliteNode.isClockwise = true
+
+        scoreLabel.text = "0"
     }
 
     func stopGame() {
@@ -75,11 +104,42 @@ class GameScene: SKScene {
 
         if lastUpdateTime == 0 {
             lastUpdateTime = currentTime
+            ScoreManager.shared.startGame(at: currentTime)
         }
 
         let deltaTime = currentTime - lastUpdateTime
         lastUpdateTime = currentTime
 
         satelliteNode.updateOrbit(deltaTime: deltaTime, currentTime: currentTime)
+
+        let starPosition = starNode.position
+        debrisSpawner.update(deltaTime: deltaTime, starPosition: starPosition)
+
+        ScoreManager.shared.update(currentTime: currentTime)
+        scoreLabel.text = "\(ScoreManager.shared.currentScore)"
+
+        if debrisSpawner.checkCollisions(
+            satellitePosition: satelliteNode.position,
+            satelliteRadius: Theme.Dimensions.satelliteRadius
+        ) {
+            handleGameOver()
+        }
+    }
+
+    private func handleGameOver() {
+        isGameActive = false
+
+        let isNewHighScore = ScoreManager.shared.endGame()
+        let finalScore = ScoreManager.shared.currentScore
+
+        let flash = SKAction.sequence([
+            SKAction.colorize(with: .red, colorBlendFactor: 0.3, duration: 0.1),
+            SKAction.colorize(with: Theme.Colors.backgroundSK, colorBlendFactor: 0, duration: 0.2)
+        ])
+        scene?.run(flash)
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+            self?.gameDelegate?.gameDidEnd(score: finalScore, isNewHighScore: isNewHighScore)
+        }
     }
 }
