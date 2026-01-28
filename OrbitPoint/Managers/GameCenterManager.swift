@@ -9,7 +9,7 @@ class GameCenterManager: ObservableObject {
     @Published var isAuthenticated = false
     @Published var localPlayer: GKLocalPlayer?
 
-    private let leaderboardID = "com.davidbond.orbitpoint.leaderboard.main"
+    private let leaderboardID = "com.davidbond.orbitpoint.leaderboard"
 
     private init() {}
 
@@ -22,8 +22,8 @@ class GameCenterManager: ObservableObject {
                     return
                 }
 
-                if viewController != nil {
-                    self?.isAuthenticated = false
+                if let vc = viewController {
+                    self?.presentAuthViewController(vc)
                     return
                 }
 
@@ -31,11 +31,26 @@ class GameCenterManager: ObservableObject {
                     self?.isAuthenticated = true
                     self?.localPlayer = GKLocalPlayer.local
                     self?.configureAccessPoint()
+                    print("Game Center authenticated successfully")
                 } else {
                     self?.isAuthenticated = false
                 }
             }
         }
+    }
+
+    private func presentAuthViewController(_ viewController: UIViewController) {
+        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+              let rootViewController = windowScene.windows.first?.rootViewController else {
+            return
+        }
+
+        var presenter = rootViewController
+        while let presented = presenter.presentedViewController {
+            presenter = presented
+        }
+
+        presenter.present(viewController, animated: true)
     }
 
     private func configureAccessPoint() {
