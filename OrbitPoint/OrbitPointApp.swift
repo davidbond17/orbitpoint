@@ -7,6 +7,7 @@ struct OrbitPointApp: App {
         Task { @MainActor in
             GameCenterManager.shared.authenticate()
         }
+        MusicManager.shared.play()
     }
 
     var body: some Scene {
