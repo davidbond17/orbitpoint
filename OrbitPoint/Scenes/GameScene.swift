@@ -33,6 +33,9 @@ class GameScene: SKScene {
     private func setupScene() {
         let center = CGPoint(x: size.width / 2, y: size.height / 2)
 
+        let starfield = StarfieldNode(size: size)
+        addChild(starfield)
+
         starNode = StarNode()
         starNode.position = center
         addChild(starNode)
@@ -75,7 +78,13 @@ class GameScene: SKScene {
         scoreLabel.zPosition = 100
         scoreLabel.horizontalAlignmentMode = .center
         scoreLabel.text = "0"
+        scoreLabel.alpha = 0
         addChild(scoreLabel)
+    }
+
+    func setScoreVisible(_ visible: Bool) {
+        let targetAlpha: CGFloat = visible ? 1.0 : 0.0
+        scoreLabel.run(SKAction.fadeAlpha(to: targetAlpha, duration: 0.2))
     }
 
     func startGame() {
@@ -87,7 +96,11 @@ class GameScene: SKScene {
         satelliteNode.currentAngle = .pi / 2
         satelliteNode.isClockwise = true
 
+        satelliteNode.refreshColors()
+        starNode.refreshColors()
+
         scoreLabel.text = "0"
+        setScoreVisible(true)
 
         AudioManager.shared.playGameStart()
     }
