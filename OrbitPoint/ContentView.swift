@@ -33,6 +33,22 @@ struct ContentView: View {
             .presentationDetents([.medium])
             .presentationDragIndicator(.visible)
         }
+        .sheet(isPresented: $viewModel.showStore) {
+            StoreView(viewModel: viewModel)
+                .presentationDetents([.large])
+                .presentationDragIndicator(.visible)
+        }
+        .sheet(isPresented: $viewModel.showHowToPlay) {
+            HowToPlayView {
+                viewModel.markTutorialSeen()
+                viewModel.showHowToPlay = false
+            }
+            .presentationDetents([.medium])
+            .presentationDragIndicator(.visible)
+        }
+        .onAppear {
+            viewModel.checkFirstLaunch()
+        }
     }
 
     @ViewBuilder
@@ -48,11 +64,41 @@ struct ContentView: View {
             }
 
         case .playing:
-            EmptyView()
+            VStack {
+                HStack {
+                    Spacer()
+                    Button {
+                        viewModel.pauseGame()
+                    } label: {
+                        Image(systemName: "gearshape.fill")
+                            .font(.system(size: 18, weight: .semibold))
+                            .foregroundColor(Theme.Colors.textSecondary)
+                            .frame(width: 44, height: 44)
+                            .background(Theme.Colors.glassBackground)
+                            .clipShape(Circle())
+                    }
+                    .padding(.trailing, 20)
+                    .padding(.top, 50)
+                }
+                Spacer()
+            }
+
+        case .paused:
+            PauseMenuView(
+                viewModel: viewModel,
+                onResume: {
+                    viewModel.resumeGame()
+                },
+                onQuit: {
+                    viewModel.returnToMenu()
+                }
+            )
+            .transition(.opacity)
 
         case .gameOver:
             GameOverView(
                 score: viewModel.lastScore,
+                earnedCoins: viewModel.lastEarnedCurrency,
                 isNewHighScore: viewModel.isNewHighScore,
                 highScore: viewModel.highScore,
                 onPlayAgain: {

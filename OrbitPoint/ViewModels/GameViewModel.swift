@@ -4,6 +4,7 @@ import SpriteKit
 enum GameState {
     case menu
     case playing
+    case paused
     case gameOver
 }
 
@@ -15,12 +16,24 @@ class GameViewModel: ObservableObject {
     @Published var isNewHighScore: Bool = false
     @Published var showSettings: Bool = false
     @Published var showLeaderboard: Bool = false
+    @Published var showStore: Bool = false
+    @Published var showHowToPlay: Bool = false
+
+    private let hasSeenTutorialKey = "orbitpoint.hasSeenTutorial"
 
     @AppStorage("soundEnabled") var soundEnabled: Bool = true
     @AppStorage("hapticsEnabled") var hapticsEnabled: Bool = true
 
     var highScore: Int {
         ScoreManager.shared.highScore
+    }
+
+    var totalCurrency: Int {
+        ScoreManager.shared.totalCurrency
+    }
+
+    var lastEarnedCurrency: Int {
+        ScoreManager.shared.lastEarnedCurrency
     }
 
     var isGameCenterAuthenticated: Bool {
@@ -51,10 +64,32 @@ class GameViewModel: ObservableObject {
 
     func returnToMenu() {
         gameState = .menu
+        gameScene?.setScoreVisible(false)
+        gameScene?.stopGame()
         GameCenterManager.shared.showAccessPoint(true)
+    }
+
+    func pauseGame() {
+        gameState = .paused
+        gameScene?.isPaused = true
+    }
+
+    func resumeGame() {
+        gameState = .playing
+        gameScene?.isPaused = false
     }
 
     func showGameCenterLeaderboard() {
         GameCenterManager.shared.showLeaderboard()
+    }
+
+    func checkFirstLaunch() {
+        if !UserDefaults.standard.bool(forKey: hasSeenTutorialKey) {
+            showHowToPlay = true
+        }
+    }
+
+    func markTutorialSeen() {
+        UserDefaults.standard.set(true, forKey: hasSeenTutorialKey)
     }
 }
