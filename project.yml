@@ -38,3 +38,10 @@ targets:
         CFBundleDisplayName: OrbitPoint
         UILaunchScreen: {}
         GKSupportsGameCenterLive: true
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+        UISupportedInterfaceOrientations~ipad:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationPortraitUpsideDown
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight

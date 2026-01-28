@@ -19,7 +19,7 @@ struct ContentView: View {
         .background(Theme.Colors.background)
         .sheet(isPresented: $viewModel.showSettings) {
             SettingsView(viewModel: viewModel)
-                .presentationDetents([.medium])
+                .presentationDetents([.medium, .large])
                 .presentationDragIndicator(.visible)
         }
         .sheet(isPresented: $viewModel.showLeaderboard) {
@@ -30,7 +30,7 @@ struct ContentView: View {
                     viewModel.showGameCenterLeaderboard()
                 }
             )
-            .presentationDetents([.medium])
+            .presentationDetents([.medium, .large])
             .presentationDragIndicator(.visible)
         }
         .sheet(isPresented: $viewModel.showStore) {
@@ -43,7 +43,7 @@ struct ContentView: View {
                 viewModel.markTutorialSeen()
                 viewModel.showHowToPlay = false
             }
-            .presentationDetents([.medium])
+            .presentationDetents([.large])
             .presentationDragIndicator(.visible)
         }
         .onAppear {
