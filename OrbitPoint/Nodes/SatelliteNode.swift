@@ -4,6 +4,7 @@ class SatelliteNode: SKNode {
 
     private let bodyNode: SKShapeNode
     private let glowNode: SKEffectNode
+    private let glowShape: SKShapeNode
     private var trailNodes: [SKShapeNode] = []
     private let maxTrailNodes = 20
 
@@ -16,14 +17,19 @@ class SatelliteNode: SKNode {
     private var lastTrailTime: TimeInterval = 0
     private let trailInterval: TimeInterval = 0.03
 
+    private var currentColor: SKColor = Theme.Colors.satelliteSK
+
     override init() {
+        let color = StoreManager.shared.currentSatelliteColor
+        currentColor = color
+
         bodyNode = SKShapeNode(circleOfRadius: Theme.Dimensions.satelliteRadius)
-        bodyNode.fillColor = Theme.Colors.satelliteSK
+        bodyNode.fillColor = color
         bodyNode.strokeColor = .clear
         bodyNode.zPosition = 20
 
-        let glowShape = SKShapeNode(circleOfRadius: Theme.Dimensions.satelliteRadius * 2)
-        glowShape.fillColor = Theme.Colors.satelliteSK.withAlphaComponent(0.4)
+        glowShape = SKShapeNode(circleOfRadius: Theme.Dimensions.satelliteRadius * 2)
+        glowShape.fillColor = color.withAlphaComponent(0.4)
         glowShape.strokeColor = .clear
 
         glowNode = SKEffectNode()
@@ -40,6 +46,13 @@ class SatelliteNode: SKNode {
 
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    func refreshColors() {
+        let color = StoreManager.shared.currentSatelliteColor
+        currentColor = color
+        bodyNode.fillColor = color
+        glowShape.fillColor = color.withAlphaComponent(0.4)
     }
 
     func updateOrbit(deltaTime: TimeInterval, currentTime: TimeInterval) {
@@ -70,7 +83,7 @@ class SatelliteNode: SKNode {
         guard let parentNode = parent else { return }
 
         let trail = SKShapeNode(circleOfRadius: Theme.Dimensions.satelliteRadius * 0.6)
-        trail.fillColor = Theme.Colors.satelliteTrailSK
+        trail.fillColor = currentColor.withAlphaComponent(0.4)
         trail.strokeColor = .clear
         trail.position = position
         trail.zPosition = 5

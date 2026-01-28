@@ -12,14 +12,16 @@ class DebrisNode: SKNode {
     init(size: CGFloat) {
         self.size = size
 
+        let color = StoreManager.shared.currentDebrisColor
+
         let points = DebrisNode.generateIrregularShape(size: size)
         let path = CGMutablePath()
         path.addLines(between: points)
         path.closeSubpath()
 
         bodyNode = SKShapeNode(path: path)
-        bodyNode.fillColor = Theme.Colors.debrisSK
-        bodyNode.strokeColor = Theme.Colors.debrisSK.withAlphaComponent(0.8)
+        bodyNode.fillColor = color
+        bodyNode.strokeColor = color.withAlphaComponent(0.8)
         bodyNode.lineWidth = 1
         bodyNode.zPosition = 15
 

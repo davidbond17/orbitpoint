@@ -3,6 +3,7 @@ import SwiftUI
 struct GameOverView: View {
 
     let score: Int
+    let earnedCoins: Int
     let isNewHighScore: Bool
     let highScore: Int
     let onPlayAgain: () -> Void
@@ -46,6 +47,28 @@ struct GameOverView: View {
                     .foregroundColor(Theme.Colors.textSecondary)
                     .opacity(showContent ? 1 : 0)
 
+                HStack(spacing: 6) {
+                    Image(systemName: "plus")
+                        .font(.system(size: 14, weight: .bold))
+                        .foregroundColor(.green)
+
+                    Image(systemName: "circle.fill")
+                        .font(.system(size: 14))
+                        .foregroundStyle(
+                            LinearGradient(
+                                colors: [Color.yellow, Color.orange],
+                                startPoint: .top,
+                                endPoint: .bottom
+                            )
+                        )
+
+                    Text("\(earnedCoins)")
+                        .font(.system(size: 18, weight: .bold, design: .rounded))
+                        .foregroundColor(Theme.Colors.textPrimary)
+                }
+                .padding(.top, 8)
+                .opacity(showContent ? 1 : 0)
+
                 if !isNewHighScore {
                     HStack(spacing: 6) {
                         Image(systemName: "trophy.fill")
@@ -55,7 +78,7 @@ struct GameOverView: View {
                             .font(.system(size: 16, weight: .medium, design: .rounded))
                             .foregroundColor(Theme.Colors.textSecondary)
                     }
-                    .padding(.top, 8)
+                    .padding(.top, 4)
                     .opacity(showContent ? 1 : 0)
                 }
             }

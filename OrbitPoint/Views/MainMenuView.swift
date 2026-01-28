@@ -7,7 +7,12 @@ struct MainMenuView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            Spacer()
+            HStack {
+                Spacer()
+                CoinDisplay(amount: viewModel.totalCurrency)
+            }
+            .padding(.horizontal, 24)
+            .padding(.top, 16)
 
             VStack(spacing: 16) {
                 Text("ORBIT")
@@ -25,6 +30,7 @@ struct MainMenuView: View {
                     .foregroundColor(Theme.Colors.textPrimary)
                     .offset(y: -10)
             }
+            .padding(.top, 40)
 
             Spacer()
 
@@ -51,6 +57,15 @@ struct MainMenuView: View {
 
                 HStack(spacing: 16) {
                     Button {
+                        viewModel.showStore = true
+                    } label: {
+                        Image(systemName: "bag.fill")
+                            .font(.system(size: 20, weight: .semibold))
+                            .frame(width: 56, height: 56)
+                    }
+                    .glassBackground()
+
+                    Button {
                         viewModel.showLeaderboard = true
                     } label: {
                         Image(systemName: "trophy")
@@ -70,8 +85,7 @@ struct MainMenuView: View {
                 }
                 .foregroundColor(Theme.Colors.textPrimary)
             }
-
-            Spacer()
+            .padding(.bottom, 120)
 
             Text("Tap to reverse orbit")
                 .font(.system(size: 14, weight: .medium, design: .rounded))
@@ -79,5 +93,30 @@ struct MainMenuView: View {
                 .padding(.bottom, 40)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+}
+
+struct CoinDisplay: View {
+    let amount: Int
+
+    var body: some View {
+        HStack(spacing: 6) {
+            Image(systemName: "circle.fill")
+                .font(.system(size: 14))
+                .foregroundStyle(
+                    LinearGradient(
+                        colors: [Color.yellow, Color.orange],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                )
+
+            Text("\(amount)")
+                .font(.system(size: 16, weight: .bold, design: .rounded))
+                .foregroundColor(Theme.Colors.textPrimary)
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 8)
+        .glassBackground()
     }
 }

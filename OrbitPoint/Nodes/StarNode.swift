@@ -4,16 +4,20 @@ class StarNode: SKNode {
 
     private let coreNode: SKShapeNode
     private let glowNode: SKEffectNode
+    private let glowShape: SKShapeNode
     private let pulseAction: SKAction
 
     override init() {
+        let coreColor = StoreManager.shared.currentSunCoreColor
+        let glowColor = StoreManager.shared.currentSunGlowColor
+
         coreNode = SKShapeNode(circleOfRadius: Theme.Dimensions.starRadius)
-        coreNode.fillColor = Theme.Colors.starCoreSK
+        coreNode.fillColor = coreColor
         coreNode.strokeColor = .clear
         coreNode.zPosition = 10
 
-        let glowShape = SKShapeNode(circleOfRadius: Theme.Dimensions.starRadius * 2.5)
-        glowShape.fillColor = Theme.Colors.starGlowSK
+        glowShape = SKShapeNode(circleOfRadius: Theme.Dimensions.starRadius * 2.5)
+        glowShape.fillColor = glowColor
         glowShape.strokeColor = .clear
 
         glowNode = SKEffectNode()
@@ -38,5 +42,10 @@ class StarNode: SKNode {
 
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    func refreshColors() {
+        coreNode.fillColor = StoreManager.shared.currentSunCoreColor
+        glowShape.fillColor = StoreManager.shared.currentSunGlowColor
     }
 }
