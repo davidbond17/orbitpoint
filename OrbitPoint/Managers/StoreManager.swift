@@ -92,6 +92,12 @@ class StoreManager: ObservableObject {
         return true
     }
 
+    func unlockMilestoneItem(_ item: StoreItem) {
+        unlockedItems.insert(item.id)
+        saveUnlockedItems()
+        equip(item)
+    }
+
     func equip(_ item: StoreItem) {
         guard unlockedItems.contains(item.id) || item.isDefault else { return }
 

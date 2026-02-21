@@ -20,6 +20,14 @@ struct ContentView: View {
                         .transition(.opacity)
                         .zIndex(10)
                 }
+
+                if let unlock = viewModel.newMilestoneUnlock {
+                    MilestoneUnlockToast(item: unlock) {
+                        viewModel.newMilestoneUnlock = nil
+                    }
+                    .transition(.move(edge: .top).combined(with: .opacity))
+                    .zIndex(11)
+                }
             }
         }
         .background(Theme.Colors.background)

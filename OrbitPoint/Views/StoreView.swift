@@ -145,6 +145,20 @@ struct StoreItemCard: View {
                         .background(Theme.Colors.glassBackground)
                         .cornerRadius(12)
                 }
+            } else if item.isMilestone {
+                VStack(spacing: 2) {
+                    Image(systemName: "lock.fill")
+                        .font(.system(size: 10))
+                        .foregroundColor(Theme.Colors.textSecondary)
+                    Text(item.milestoneRequirement ?? "")
+                        .font(.system(size: 10, weight: .medium, design: .rounded))
+                        .foregroundColor(Theme.Colors.textSecondary)
+                        .multilineTextAlignment(.center)
+                }
+                .padding(.horizontal, 8)
+                .padding(.vertical, 6)
+                .background(Theme.Colors.glassBackground)
+                .cornerRadius(12)
             } else {
                 Button(action: onPurchase) {
                     HStack(spacing: 4) {

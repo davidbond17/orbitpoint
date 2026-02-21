@@ -15,9 +15,24 @@ struct StoreItem: Identifiable {
     let price: Int
     let previewColor: Color
     let skColor: SKColor
+    let milestoneRequirement: String?
+
+    init(id: String, name: String, type: ItemType, price: Int, previewColor: Color, skColor: SKColor, milestoneRequirement: String? = nil) {
+        self.id = id
+        self.name = name
+        self.type = type
+        self.price = price
+        self.previewColor = previewColor
+        self.skColor = skColor
+        self.milestoneRequirement = milestoneRequirement
+    }
 
     var isDefault: Bool {
-        price == 0
+        price == 0 && milestoneRequirement == nil
+    }
+
+    var isMilestone: Bool {
+        milestoneRequirement != nil
     }
 }
 
@@ -54,7 +69,11 @@ enum StoreItems {
                   skColor: SKColor(red: 1.0, green: 0.4, blue: 0.7, alpha: 1.0)),
         StoreItem(id: "satellite_white", name: "White", type: .satellite, price: 150,
                   previewColor: Color.white,
-                  skColor: SKColor.white)
+                  skColor: SKColor.white),
+        StoreItem(id: "satellite_aurora", name: "Aurora", type: .satellite, price: 0,
+                  previewColor: Color(red: 0.2, green: 1.0, blue: 0.7),
+                  skColor: SKColor(red: 0.2, green: 1.0, blue: 0.7, alpha: 1.0),
+                  milestoneRequirement: "Survive 60 seconds")
     ]
 
     static let suns: [StoreItem] = [
@@ -69,7 +88,11 @@ enum StoreItems {
                   skColor: SKColor(red: 1.0, green: 0.4, blue: 0.3, alpha: 1.0)),
         StoreItem(id: "sun_neon", name: "Neon", type: .sun, price: 300,
                   previewColor: Color(red: 0.0, green: 1.0, blue: 0.8),
-                  skColor: SKColor(red: 0.0, green: 1.0, blue: 0.8, alpha: 1.0))
+                  skColor: SKColor(red: 0.0, green: 1.0, blue: 0.8, alpha: 1.0)),
+        StoreItem(id: "sun_pulsar", name: "Pulsar", type: .sun, price: 0,
+                  previewColor: Color(red: 0.6, green: 0.2, blue: 1.0),
+                  skColor: SKColor(red: 0.6, green: 0.2, blue: 1.0, alpha: 1.0),
+                  milestoneRequirement: "Play 10 games")
     ]
 
     static let debris: [StoreItem] = [
@@ -84,7 +107,11 @@ enum StoreItems {
                   skColor: SKColor(red: 0.2, green: 0.5, blue: 0.3, alpha: 1.0)),
         StoreItem(id: "debris_orange", name: "Orange", type: .debris, price: 75,
                   previewColor: Color(red: 0.8, green: 0.4, blue: 0.1),
-                  skColor: SKColor(red: 0.8, green: 0.4, blue: 0.1, alpha: 1.0))
+                  skColor: SKColor(red: 0.8, green: 0.4, blue: 0.1, alpha: 1.0)),
+        StoreItem(id: "debris_galaxy", name: "Galaxy", type: .debris, price: 0,
+                  previewColor: Color(red: 0.2, green: 0.3, blue: 0.9),
+                  skColor: SKColor(red: 0.2, green: 0.3, blue: 0.9, alpha: 1.0),
+                  milestoneRequirement: "Survive 120 seconds")
     ]
 
     static let themes: [ThemePack] = [

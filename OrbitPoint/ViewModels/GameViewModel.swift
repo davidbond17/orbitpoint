@@ -19,6 +19,7 @@ class GameViewModel: ObservableObject {
     @Published var showStore: Bool = false
     @Published var showHowToPlay: Bool = false
     @Published var showDailyBonus: Bool = false
+    @Published var newMilestoneUnlock: StoreItem? = nil
 
     private let hasSeenTutorialKey = "orbitpoint.hasSeenTutorial"
 
@@ -58,9 +59,26 @@ class GameViewModel: ObservableObject {
         self.isNewHighScore = isNewHighScore
         gameState = .gameOver
 
+        checkMilestoneUnlocks(score: score)
+
         Task {
             await GameCenterManager.shared.submitScore(score)
             await GameCenterManager.shared.reportAchievementsAfterGame(score: score)
+        }
+    }
+
+    private func checkMilestoneUnlocks(score: Int) {
+        let stats = ScoreManager.shared
+        let store = StoreManager.shared
+        let milestoneItems: [(StoreItem, Bool)] = [
+            (StoreItems.satellites.first(where: { $0.id == "satellite_aurora" })!, score >= 60),
+            (StoreItems.suns.first(where: { $0.id == "sun_pulsar" })!, stats.totalGamesPlayed >= 10),
+            (StoreItems.debris.first(where: { $0.id == "debris_galaxy" })!, score >= 120)
+        ]
+        for (item, earned) in milestoneItems where earned && !store.isUnlocked(item.id) {
+            store.unlockMilestoneItem(item)
+            newMilestoneUnlock = item
+            break
         }
     }
 
