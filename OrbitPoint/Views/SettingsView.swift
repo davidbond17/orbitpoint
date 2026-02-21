@@ -5,6 +5,7 @@ struct SettingsView: View {
     @ObservedObject var viewModel: GameViewModel
     @Environment(\.dismiss) private var dismiss
     @State private var musicVolume: Float = MusicManager.shared.volume
+    @State private var showStats = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -47,6 +48,30 @@ struct SettingsView: View {
                     .onChange(of: musicVolume) { _, newValue in
                         MusicManager.shared.setVolume(newValue)
                     }
+
+                Button {
+                    showStats = true
+                } label: {
+                    HStack(spacing: 16) {
+                        Image(systemName: "chart.bar.fill")
+                            .font(.system(size: 20, weight: .semibold))
+                            .foregroundColor(Theme.Colors.accent)
+                            .frame(width: 32)
+
+                        Text("Your Stats")
+                            .font(.system(size: 18, weight: .medium, design: .rounded))
+                            .foregroundColor(Theme.Colors.textPrimary)
+
+                        Spacer()
+
+                        Image(systemName: "chevron.right")
+                            .font(.system(size: 14, weight: .semibold))
+                            .foregroundColor(Theme.Colors.textSecondary)
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 16)
+                    .glassBackground()
+                }
 
                 Button {
                     dismiss()
@@ -102,6 +127,11 @@ struct SettingsView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Theme.Colors.background.ignoresSafeArea())
+        .sheet(isPresented: $showStats) {
+            StatsView()
+                .presentationDetents([.large])
+                .presentationDragIndicator(.visible)
+        }
     }
 }
 
