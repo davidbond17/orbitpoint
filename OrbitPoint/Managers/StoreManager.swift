@@ -77,6 +77,7 @@ class StoreManager: ObservableObject {
         unlockedItems.insert(item.id)
         saveUnlockedItems()
         equip(item)
+        Task { await GameCenterManager.shared.reportAchievementsAfterPurchase() }
         return true
     }
 
@@ -87,6 +88,7 @@ class StoreManager: ObservableObject {
         unlockedItems.insert(theme.id)
         saveUnlockedItems()
         equipTheme(theme)
+        Task { await GameCenterManager.shared.reportAchievementsAfterPurchase() }
         return true
     }
 

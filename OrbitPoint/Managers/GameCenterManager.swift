@@ -11,6 +11,19 @@ class GameCenterManager: ObservableObject {
 
     private let leaderboardID = "com.davidbond.orbitpoint.leaderboard"
 
+    enum Achievement: String {
+        case firstOrbit      = "com.davidbond.orbitpoint.first_orbit"
+        case asteroidDodger  = "com.davidbond.orbitpoint.asteroid_dodger"
+        case spaceVeteran    = "com.davidbond.orbitpoint.space_veteran"
+        case orbitalMaster   = "com.davidbond.orbitpoint.orbital_master"
+        case firstPurchase   = "com.davidbond.orbitpoint.first_purchase"
+        case collector       = "com.davidbond.orbitpoint.collector"
+        case coinHoarder     = "com.davidbond.orbitpoint.coin_hoarder"
+        case bigSpender      = "com.davidbond.orbitpoint.big_spender"
+        case frequentFlyer   = "com.davidbond.orbitpoint.frequent_flyer"
+        case dedicatedPilot  = "com.davidbond.orbitpoint.dedicated_pilot"
+    }
+
     private init() {}
 
     func authenticate() {
@@ -102,6 +115,49 @@ class GameCenterManager: ObservableObject {
         }
 
         presenter.present(gcViewController, animated: true)
+    }
+
+    func reportAchievementsAfterGame(score: Int) async {
+        guard isAuthenticated else { return }
+        let stats = ScoreManager.shared
+        var toReport: [Achievement] = []
+
+        if score >= 10  { toReport.append(.firstOrbit) }
+        if score >= 30  { toReport.append(.asteroidDodger) }
+        if score >= 60  { toReport.append(.spaceVeteran) }
+        if score >= 120 { toReport.append(.orbitalMaster) }
+        if stats.totalGamesPlayed >= 10 { toReport.append(.frequentFlyer) }
+        if stats.totalGamesPlayed >= 25 { toReport.append(.dedicatedPilot) }
+        if stats.totalCoinsEarned >= 500 { toReport.append(.coinHoarder) }
+
+        await reportAchievements(toReport)
+    }
+
+    func reportAchievementsAfterPurchase() async {
+        guard isAuthenticated else { return }
+        let stats = ScoreManager.shared
+        var toReport: [Achievement] = []
+
+        if stats.purchaseCount >= 1 { toReport.append(.firstPurchase) }
+        if stats.purchaseCount >= 5 { toReport.append(.collector) }
+        if stats.totalCoinsSpent >= 500 { toReport.append(.bigSpender) }
+
+        await reportAchievements(toReport)
+    }
+
+    private func reportAchievements(_ achievements: [Achievement]) async {
+        guard !achievements.isEmpty else { return }
+        let gcAchievements = achievements.map { achievement -> GKAchievement in
+            let a = GKAchievement(identifier: achievement.rawValue)
+            a.percentComplete = 100
+            a.showsCompletionBanner = true
+            return a
+        }
+        do {
+            try await GKAchievement.report(gcAchievements)
+        } catch {
+            print("Failed to report achievements: \(error.localizedDescription)")
+        }
     }
 
     func loadHighScore() async -> Int? {

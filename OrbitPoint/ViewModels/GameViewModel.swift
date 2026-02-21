@@ -59,6 +59,7 @@ class GameViewModel: ObservableObject {
 
         Task {
             await GameCenterManager.shared.submitScore(score)
+            await GameCenterManager.shared.reportAchievementsAfterGame(score: score)
         }
     }
 
