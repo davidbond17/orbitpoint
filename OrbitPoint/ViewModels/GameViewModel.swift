@@ -18,6 +18,7 @@ class GameViewModel: ObservableObject {
     @Published var showLeaderboard: Bool = false
     @Published var showStore: Bool = false
     @Published var showHowToPlay: Bool = false
+    @Published var showDailyBonus: Bool = false
 
     private let hasSeenTutorialKey = "orbitpoint.hasSeenTutorial"
 
@@ -87,6 +88,10 @@ class GameViewModel: ObservableObject {
     func checkFirstLaunch() {
         if !UserDefaults.standard.bool(forKey: hasSeenTutorialKey) {
             showHowToPlay = true
+        }
+        DailyBonusManager.shared.checkAvailability()
+        if DailyBonusManager.shared.bonusAvailable {
+            showDailyBonus = true
         }
     }
 

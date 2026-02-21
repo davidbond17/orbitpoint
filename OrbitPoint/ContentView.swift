@@ -14,6 +14,12 @@ struct ContentView: View {
                     .ignoresSafeArea()
 
                 overlayView
+
+                if viewModel.showDailyBonus {
+                    DailyBonusView(isPresented: $viewModel.showDailyBonus)
+                        .transition(.opacity)
+                        .zIndex(10)
+                }
             }
         }
         .background(Theme.Colors.background)

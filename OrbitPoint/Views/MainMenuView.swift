@@ -3,11 +3,29 @@ import SwiftUI
 struct MainMenuView: View {
 
     @ObservedObject var viewModel: GameViewModel
+    @ObservedObject private var bonusManager = DailyBonusManager.shared
     let onPlay: () -> Void
 
     var body: some View {
         VStack(spacing: 0) {
             HStack {
+                if bonusManager.bonusAvailable {
+                    Button {
+                        viewModel.showDailyBonus = true
+                    } label: {
+                        HStack(spacing: 6) {
+                            Image(systemName: "gift.fill")
+                                .font(.system(size: 13))
+                                .foregroundColor(.orange)
+                            Text("Daily Bonus!")
+                                .font(.system(size: 14, weight: .semibold, design: .rounded))
+                                .foregroundColor(Theme.Colors.textPrimary)
+                        }
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 8)
+                        .glassBackground()
+                    }
+                }
                 Spacer()
                 CoinDisplay(amount: viewModel.totalCurrency)
             }
