@@ -44,6 +44,10 @@ class ScoreManager {
         currentScore = Int(currentTime - gameStartTime)
     }
 
+    func adjustForPause(duration: TimeInterval) {
+        gameStartTime += duration
+    }
+
     func endGame() -> Bool {
         isRunning = false
 

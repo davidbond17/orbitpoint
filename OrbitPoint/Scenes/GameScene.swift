@@ -15,6 +15,7 @@ class GameScene: SKScene {
 
     private var lastUpdateTime: TimeInterval = 0
     private var isGameActive = false
+    private var isResumingFromPause = false
 
     override init(size: CGSize) {
         super.init(size: size)
@@ -109,6 +110,15 @@ class GameScene: SKScene {
         isGameActive = false
     }
 
+    func pauseScene() {
+        isPaused = true
+    }
+
+    func resumeScene() {
+        isResumingFromPause = true
+        isPaused = false
+    }
+
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard isGameActive else { return }
         satelliteNode.reverseDirection()
@@ -122,6 +132,14 @@ class GameScene: SKScene {
         if lastUpdateTime == 0 {
             lastUpdateTime = currentTime
             ScoreManager.shared.startGame(at: currentTime)
+        }
+
+        if isResumingFromPause {
+            let pausedDuration = currentTime - lastUpdateTime
+            ScoreManager.shared.adjustForPause(duration: pausedDuration)
+            lastUpdateTime = currentTime
+            isResumingFromPause = false
+            return
         }
 
         let deltaTime = currentTime - lastUpdateTime
