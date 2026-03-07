@@ -9,7 +9,12 @@ class GameCenterManager: ObservableObject {
     @Published var isAuthenticated = false
     @Published var localPlayer: GKLocalPlayer?
 
-    private let leaderboardID = "com.davidbond.orbitpoint.leaderboard"
+    private let freePlayLeaderboardID = "com.davidbond.orbitpoint.leaderboard"
+    private let campaignStarsLeaderboardID = "com.davidbond.orbitpoint.campaign.stars"
+
+    static func levelLeaderboardID(zone: Int, level: Int) -> String {
+        "com.davidbond.orbitpoint.campaign.\(zone)_\(level)"
+    }
 
     enum Achievement: String {
         case firstOrbit      = "com.davidbond.orbitpoint.first_orbit"
@@ -76,22 +81,49 @@ class GameCenterManager: ObservableObject {
         GKAccessPoint.shared.isActive = show && isAuthenticated
     }
 
-    func submitScore(_ score: Int) async {
-        guard isAuthenticated else {
-            print("Cannot submit score: Not authenticated with Game Center")
-            return
-        }
-
+    func submitFreePlayScore(_ score: Int) async {
+        guard isAuthenticated else { return }
         do {
             try await GKLeaderboard.submitScore(
                 score,
                 context: 0,
                 player: GKLocalPlayer.local,
-                leaderboardIDs: [leaderboardID]
+                leaderboardIDs: [freePlayLeaderboardID]
             )
-            print("Score submitted to Game Center: \(score)")
+            print("Free play score submitted: \(score)")
         } catch {
-            print("Failed to submit score: \(error.localizedDescription)")
+            print("Failed to submit free play score: \(error.localizedDescription)")
+        }
+    }
+
+    func submitCampaignLevelTime(zone: Int, level: Int, timeInSeconds: Int) async {
+        guard isAuthenticated else { return }
+        let levelID = GameCenterManager.levelLeaderboardID(zone: zone, level: level)
+        do {
+            try await GKLeaderboard.submitScore(
+                timeInSeconds,
+                context: 0,
+                player: GKLocalPlayer.local,
+                leaderboardIDs: [levelID]
+            )
+            print("Campaign level \(zone)-\(level) time submitted: \(timeInSeconds)s")
+        } catch {
+            print("Failed to submit campaign level time: \(error.localizedDescription)")
+        }
+    }
+
+    func submitCampaignTotalStars(_ totalStars: Int) async {
+        guard isAuthenticated else { return }
+        do {
+            try await GKLeaderboard.submitScore(
+                totalStars,
+                context: 0,
+                player: GKLocalPlayer.local,
+                leaderboardIDs: [campaignStarsLeaderboardID]
+            )
+            print("Campaign total stars submitted: \(totalStars)")
+        } catch {
+            print("Failed to submit campaign stars: \(error.localizedDescription)")
         }
     }
 
@@ -106,7 +138,7 @@ class GameCenterManager: ObservableObject {
             return
         }
 
-        let gcViewController = GKGameCenterViewController(leaderboardID: leaderboardID, playerScope: .global, timeScope: .allTime)
+        let gcViewController = GKGameCenterViewController(leaderboardID: freePlayLeaderboardID, playerScope: .global, timeScope: .allTime)
         gcViewController.gameCenterDelegate = GameCenterDismissHandler.shared
 
         var presenter = rootViewController
@@ -164,7 +196,7 @@ class GameCenterManager: ObservableObject {
         guard isAuthenticated else { return nil }
 
         do {
-            let leaderboards = try await GKLeaderboard.loadLeaderboards(IDs: [leaderboardID])
+            let leaderboards = try await GKLeaderboard.loadLeaderboards(IDs: [freePlayLeaderboardID])
             guard let leaderboard = leaderboards.first else { return nil }
 
             let (localEntry, _) = try await leaderboard.loadEntries(for: [GKLocalPlayer.local], timeScope: .allTime)

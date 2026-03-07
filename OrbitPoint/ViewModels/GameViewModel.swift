@@ -91,7 +91,7 @@ class GameViewModel: ObservableObject {
         checkMilestoneUnlocks(score: score)
 
         Task {
-            await GameCenterManager.shared.submitScore(score)
+            await GameCenterManager.shared.submitFreePlayScore(score)
             await GameCenterManager.shared.reportAchievementsAfterGame(score: score)
         }
     }
@@ -115,6 +115,20 @@ class GameViewModel: ObservableObject {
         self.lastLevelResult = result
         self.lastScore = Int(result.survivalTime)
         gameState = .campaignLevelComplete
+
+        if result.passed {
+            Task {
+                await GameCenterManager.shared.submitCampaignLevelTime(
+                    zone: result.levelConfig.zone,
+                    level: result.levelConfig.level,
+                    timeInSeconds: Int(result.survivalTime)
+                )
+                await GameCenterManager.shared.submitCampaignTotalStars(
+                    CampaignManager.shared.totalStars
+                )
+                await GameCenterManager.shared.reportAchievementsAfterGame(score: Int(result.survivalTime))
+            }
+        }
     }
 
     func returnToMenu() {
