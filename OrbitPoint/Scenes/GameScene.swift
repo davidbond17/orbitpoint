@@ -2,6 +2,7 @@ import SpriteKit
 
 protocol GameSceneDelegate: AnyObject {
     func gameDidEnd(score: Int, isNewHighScore: Bool)
+    func campaignLevelDidEnd(result: LevelResult)
 }
 
 class GameScene: SKScene {
@@ -12,9 +13,17 @@ class GameScene: SKScene {
     private var satelliteNode: SatelliteNode!
     private var debrisSpawner: DebrisSpawner!
     private var scoreLabel: SKLabelNode!
+    private var targetTimeLabel: SKLabelNode!
 
     private var lastUpdateTime: TimeInterval = 0
     private var isGameActive = false
+
+    private var gameMode: GameMode = .freePlay
+    private var levelConfig: LevelConfig?
+    private var reverseCount: Int = 0
+    private var timeSinceLastReverse: TimeInterval = 0
+    private var longestNoReverseDuration: TimeInterval = 0
+    private var gameElapsedTime: TimeInterval = 0
 
     override init(size: CGSize) {
         super.init(size: size)
@@ -80,6 +89,30 @@ class GameScene: SKScene {
         scoreLabel.text = "0"
         scoreLabel.alpha = 0
         addChild(scoreLabel)
+
+        targetTimeLabel = SKLabelNode(fontNamed: "SF Pro Rounded")
+        targetTimeLabel.fontSize = 16
+        targetTimeLabel.fontColor = SKColor(white: 1.0, alpha: 0.5)
+        targetTimeLabel.position = CGPoint(x: size.width / 2, y: size.height - 148)
+        targetTimeLabel.zPosition = 100
+        targetTimeLabel.horizontalAlignmentMode = .center
+        targetTimeLabel.text = ""
+        targetTimeLabel.alpha = 0
+        addChild(targetTimeLabel)
+    }
+
+    func configureForMode(_ mode: GameMode) {
+        gameMode = mode
+        switch mode {
+        case .freePlay:
+            levelConfig = nil
+            debrisSpawner.configure(with: .standard)
+        case .campaign(let zone, let level):
+            levelConfig = CampaignLevels.level(zone: zone, level: level)
+            if let config = levelConfig {
+                debrisSpawner.configure(with: config.debrisConfig)
+            }
+        }
     }
 
     func setScoreVisible(_ visible: Bool) {
@@ -90,8 +123,16 @@ class GameScene: SKScene {
     func startGame() {
         isGameActive = true
         lastUpdateTime = 0
+        reverseCount = 0
+        timeSinceLastReverse = 0
+        longestNoReverseDuration = 0
+        gameElapsedTime = 0
 
         debrisSpawner.reset()
+        if let config = levelConfig {
+            debrisSpawner.configure(with: config.debrisConfig)
+        }
+
         satelliteNode.clearTrails()
         satelliteNode.currentAngle = .pi / 2
         satelliteNode.isClockwise = true
@@ -101,6 +142,15 @@ class GameScene: SKScene {
 
         scoreLabel.text = "0"
         setScoreVisible(true)
+
+        targetTimeLabel.fontColor = SKColor(white: 1.0, alpha: 0.5)
+        if let config = levelConfig {
+            targetTimeLabel.text = "Target: \(Int(config.targetTime))s"
+            targetTimeLabel.run(SKAction.fadeAlpha(to: 1.0, duration: 0.2))
+        } else {
+            targetTimeLabel.text = ""
+            targetTimeLabel.alpha = 0
+        }
 
         AudioManager.shared.playGameStart()
     }
@@ -122,6 +172,11 @@ class GameScene: SKScene {
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard isGameActive else { return }
         satelliteNode.reverseDirection()
+        reverseCount += 1
+        if timeSinceLastReverse > longestNoReverseDuration {
+            longestNoReverseDuration = timeSinceLastReverse
+        }
+        timeSinceLastReverse = 0
         HapticsManager.shared.playDirectionChange()
         AudioManager.shared.playDirectionChange()
     }
@@ -141,6 +196,8 @@ class GameScene: SKScene {
 
         let deltaTime = currentTime - lastUpdateTime
         lastUpdateTime = currentTime
+        gameElapsedTime += deltaTime
+        timeSinceLastReverse += deltaTime
 
         satelliteNode.updateOrbit(deltaTime: deltaTime, currentTime: currentTime)
 
@@ -150,6 +207,10 @@ class GameScene: SKScene {
         ScoreManager.shared.update(currentTime: currentTime)
         scoreLabel.text = "\(ScoreManager.shared.currentScore)"
 
+        if let config = levelConfig {
+            updateCampaignTargetLabel(config: config)
+        }
+
         if debrisSpawner.checkCollisions(
             satellitePosition: satelliteNode.position,
             satelliteRadius: Theme.Dimensions.satelliteRadius
@@ -158,19 +219,25 @@ class GameScene: SKScene {
         }
     }
 
+    private func updateCampaignTargetLabel(config: LevelConfig) {
+        let remaining = max(0, config.targetTime - gameElapsedTime)
+        if remaining > 0 {
+            targetTimeLabel.text = "Target: \(Int(ceil(remaining)))s"
+        } else {
+            targetTimeLabel.text = "Target reached!"
+            targetTimeLabel.fontColor = SKColor(red: 0.3, green: 0.9, blue: 0.4, alpha: 1.0)
+        }
+    }
+
     private func handleGameOver() {
         isGameActive = false
 
+        if timeSinceLastReverse > longestNoReverseDuration {
+            longestNoReverseDuration = timeSinceLastReverse
+        }
+
         HapticsManager.shared.playCollision()
         AudioManager.shared.playCollision()
-
-        let isNewHighScore = ScoreManager.shared.endGame()
-        let finalScore = ScoreManager.shared.currentScore
-
-        if isNewHighScore {
-            HapticsManager.shared.playNewHighScore()
-            AudioManager.shared.playNewHighScore()
-        }
 
         let flash = SKAction.sequence([
             SKAction.colorize(with: .red, colorBlendFactor: 0.3, duration: 0.1),
@@ -178,8 +245,62 @@ class GameScene: SKScene {
         ])
         scene?.run(flash)
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
-            self?.gameDelegate?.gameDidEnd(score: finalScore, isNewHighScore: isNewHighScore)
+        targetTimeLabel.run(SKAction.fadeAlpha(to: 0, duration: 0.3))
+
+        if let config = levelConfig {
+            let bonusCompleted = checkBonusObjective(config: config)
+            let result = LevelResult(
+                levelConfig: config,
+                survivalTime: gameElapsedTime,
+                earnedCoins: 0,
+                starsEarned: 0,
+                bonusCompleted: bonusCompleted,
+                reverseCount: reverseCount
+            )
+
+            let coins = CampaignManager.shared.coinReward(for: result)
+            let stars = CampaignManager.shared.calculateStars(for: result)
+            let finalResult = LevelResult(
+                levelConfig: config,
+                survivalTime: gameElapsedTime,
+                earnedCoins: coins,
+                starsEarned: stars,
+                bonusCompleted: bonusCompleted,
+                reverseCount: reverseCount
+            )
+
+            if finalResult.passed {
+                ScoreManager.shared.addCurrency(coins)
+                CampaignManager.shared.completeLevel(finalResult)
+            }
+
+            _ = ScoreManager.shared.endGame()
+
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+                self?.gameDelegate?.campaignLevelDidEnd(result: finalResult)
+            }
+        } else {
+            let isNewHighScore = ScoreManager.shared.endGame()
+            let finalScore = ScoreManager.shared.currentScore
+
+            if isNewHighScore {
+                HapticsManager.shared.playNewHighScore()
+                AudioManager.shared.playNewHighScore()
+            }
+
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+                self?.gameDelegate?.gameDidEnd(score: finalScore, isNewHighScore: isNewHighScore)
+            }
+        }
+    }
+
+    private func checkBonusObjective(config: LevelConfig) -> Bool {
+        guard let bonus = config.bonusObjective else { return false }
+        switch bonus {
+        case .reverseCount(let target):
+            return reverseCount >= target
+        case .noReverseFor(let seconds):
+            return longestNoReverseDuration >= seconds
         }
     }
 }

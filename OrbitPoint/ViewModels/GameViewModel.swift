@@ -6,6 +6,8 @@ enum GameState {
     case playing
     case paused
     case gameOver
+    case campaignMap
+    case campaignLevelComplete
 }
 
 @MainActor
@@ -20,6 +22,10 @@ class GameViewModel: ObservableObject {
     @Published var showHowToPlay: Bool = false
     @Published var showDailyBonus: Bool = false
     @Published var newMilestoneUnlock: StoreItem? = nil
+
+    @Published var currentGameMode: GameMode = .freePlay
+    @Published var lastLevelResult: LevelResult?
+    @Published var selectedZone: Int = 1
 
     private let hasSeenTutorialKey = "orbitpoint.hasSeenTutorial"
 
@@ -48,10 +54,29 @@ class GameViewModel: ObservableObject {
         self.gameScene = scene
     }
 
-    func startGame() {
+    func startFreePlay() {
+        currentGameMode = .freePlay
+        gameScene?.configureForMode(.freePlay)
         gameState = .playing
         GameCenterManager.shared.showAccessPoint(false)
         gameScene?.startGame()
+    }
+
+    func startCampaignLevel(zone: Int, level: Int) {
+        currentGameMode = .campaign(zone: zone, level: level)
+        gameScene?.configureForMode(.campaign(zone: zone, level: level))
+        gameState = .playing
+        GameCenterManager.shared.showAccessPoint(false)
+        gameScene?.startGame()
+    }
+
+    func startGame() {
+        switch currentGameMode {
+        case .freePlay:
+            startFreePlay()
+        case .campaign(let zone, let level):
+            startCampaignLevel(zone: zone, level: level)
+        }
     }
 
     func handleGameOver(score: Int, isNewHighScore: Bool) {
@@ -82,11 +107,29 @@ class GameViewModel: ObservableObject {
         }
     }
 
+    func handleCampaignLevelEnd(result: LevelResult) {
+        self.lastLevelResult = result
+        self.lastScore = Int(result.survivalTime)
+        gameState = .campaignLevelComplete
+    }
+
     func returnToMenu() {
+        currentGameMode = .freePlay
         gameState = .menu
         gameScene?.setScoreVisible(false)
         gameScene?.stopGame()
         GameCenterManager.shared.showAccessPoint(true)
+    }
+
+    func returnToCampaignMap() {
+        gameState = .campaignMap
+        gameScene?.setScoreVisible(false)
+        gameScene?.stopGame()
+    }
+
+    func showCampaignMap() {
+        gameState = .campaignMap
+        GameCenterManager.shared.showAccessPoint(false)
     }
 
     func pauseGame() {

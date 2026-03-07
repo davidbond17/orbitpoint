@@ -67,7 +67,18 @@ struct MainMenuView: View {
                 Button(action: onPlay) {
                     HStack(spacing: 12) {
                         Image(systemName: "play.fill")
-                        Text("Play")
+                        Text("Free Play")
+                    }
+                }
+                .buttonStyle(.glass)
+                .padding(.horizontal, 40)
+
+                Button {
+                    viewModel.showCampaignMap()
+                } label: {
+                    HStack(spacing: 12) {
+                        Image(systemName: "map.fill")
+                        Text("Campaign")
                     }
                 }
                 .buttonStyle(.glass)
