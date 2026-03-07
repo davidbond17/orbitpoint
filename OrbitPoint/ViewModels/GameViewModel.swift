@@ -22,7 +22,9 @@ class GameViewModel: ObservableObject {
     @Published var showHowToPlay: Bool = false
     @Published var showDailyBonus: Bool = false
     @Published var showLoreIntro: Bool = false
+    @Published var showCodex: Bool = false
     @Published var newMilestoneUnlock: StoreItem? = nil
+    @Published var collectedLoreFragment: LoreFragment? = nil
 
     @Published var currentGameMode: GameMode = .freePlay
     @Published var lastLevelResult: LevelResult?
@@ -176,5 +178,12 @@ class GameViewModel: ObservableObject {
 
     func markTutorialSeen() {
         UserDefaults.standard.set(true, forKey: hasSeenTutorialKey)
+    }
+
+    func handleLoreFragmentCollected(id: String) {
+        LoreManager.shared.collectFragment(id)
+        if let fragment = LoreFragments.fragment(for: id) {
+            collectedLoreFragment = fragment
+        }
     }
 }

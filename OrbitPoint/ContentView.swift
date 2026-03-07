@@ -29,6 +29,14 @@ struct ContentView: View {
                     .zIndex(11)
                 }
 
+                if let fragment = viewModel.collectedLoreFragment {
+                    LoreCollectedToast(fragment: fragment) {
+                        viewModel.collectedLoreFragment = nil
+                    }
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+                    .zIndex(12)
+                }
+
                 if viewModel.showLoreIntro {
                     LoreIntroView {
                         viewModel.markLoreIntroSeen()
@@ -57,6 +65,11 @@ struct ContentView: View {
         }
         .sheet(isPresented: $viewModel.showStore) {
             StoreView(viewModel: viewModel)
+                .presentationDetents([.large])
+                .presentationDragIndicator(.visible)
+        }
+        .sheet(isPresented: $viewModel.showCodex) {
+            CodexView()
                 .presentationDetents([.large])
                 .presentationDragIndicator(.visible)
         }
@@ -205,6 +218,12 @@ class GameSceneDelegateAdapter: GameSceneDelegate {
     func campaignLevelDidEnd(result: LevelResult) {
         Task { @MainActor in
             viewModel.handleCampaignLevelEnd(result: result)
+        }
+    }
+
+    func loreFragmentCollected(id: String) {
+        Task { @MainActor in
+            viewModel.handleLoreFragmentCollected(id: id)
         }
     }
 }

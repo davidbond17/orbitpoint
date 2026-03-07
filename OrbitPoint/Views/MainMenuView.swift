@@ -95,6 +95,15 @@ struct MainMenuView: View {
                     .glassBackground()
 
                     Button {
+                        viewModel.showCodex = true
+                    } label: {
+                        Image(systemName: "book.fill")
+                            .font(.system(size: 20, weight: .semibold))
+                            .frame(width: 56, height: 56)
+                    }
+                    .glassBackground()
+
+                    Button {
                         viewModel.showLeaderboard = true
                     } label: {
                         Image(systemName: "trophy")

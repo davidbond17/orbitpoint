@@ -3,6 +3,7 @@ import SpriteKit
 protocol GameSceneDelegate: AnyObject {
     func gameDidEnd(score: Int, isNewHighScore: Bool)
     func campaignLevelDidEnd(result: LevelResult)
+    func loreFragmentCollected(id: String)
 }
 
 class GameScene: SKScene {
@@ -24,6 +25,9 @@ class GameScene: SKScene {
     private var timeSinceLastReverse: TimeInterval = 0
     private var longestNoReverseDuration: TimeInterval = 0
     private var gameElapsedTime: TimeInterval = 0
+    private var loreFragmentNode: LoreFragmentNode?
+    private var loreSpawnTime: TimeInterval = 0
+    private var hasSpawnedLoreFragment = false
 
     override init(size: CGSize) {
         super.init(size: size)
@@ -90,7 +94,8 @@ class GameScene: SKScene {
         scoreLabel.alpha = 0
         addChild(scoreLabel)
 
-        targetTimeLabel = SKLabelNode(fontNamed: "SF Pro Rounded")
+        targetTimeLabel = SKLabelNode(f
+                                      ontNamed: "SF Pro Rounded")
         targetTimeLabel.fontSize = 16
         targetTimeLabel.fontColor = SKColor(white: 1.0, alpha: 0.5)
         targetTimeLabel.position = CGPoint(x: size.width / 2, y: size.height - 148)
@@ -152,6 +157,15 @@ class GameScene: SKScene {
             targetTimeLabel.alpha = 0
         }
 
+        loreFragmentNode?.removeFromParent()
+        loreFragmentNode = nil
+        hasSpawnedLoreFragment = false
+        if case .campaign(let zone, let level) = gameMode {
+            if LoreManager.shared.hasFragmentForLevel(zone: zone, level: level) {
+                loreSpawnTime = TimeInterval.random(in: 5...15)
+            }
+        }
+
         AudioManager.shared.playGameStart()
     }
 
@@ -210,6 +224,9 @@ class GameScene: SKScene {
         if let config = levelConfig {
             updateCampaignTargetLabel(config: config)
         }
+
+        spawnLoreFragmentIfNeeded()
+        checkLoreFragmentCollection()
 
         if debrisSpawner.checkCollisions(
             satellitePosition: satelliteNode.position,
@@ -291,6 +308,34 @@ class GameScene: SKScene {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
                 self?.gameDelegate?.gameDidEnd(score: finalScore, isNewHighScore: isNewHighScore)
             }
+        }
+    }
+
+    private func spawnLoreFragmentIfNeeded() {
+        guard !hasSpawnedLoreFragment,
+              case .campaign(let zone, let level) = gameMode,
+              gameElapsedTime >= loreSpawnTime,
+              let fragment = LoreFragments.fragmentForLevel(zone: zone, level: level),
+              !LoreManager.shared.isCollected(fragment.id) else { return }
+
+        hasSpawnedLoreFragment = true
+        let center = CGPoint(x: size.width / 2, y: size.height / 2)
+        let angle = CGFloat.random(in: 0...(CGFloat.pi * 2))
+        let node = LoreFragmentNode(fragmentId: fragment.id)
+        node.position = CGPoint(
+            x: center.x + cos(angle) * Theme.Dimensions.orbitRadius,
+            y: center.y + sin(angle) * Theme.Dimensions.orbitRadius
+        )
+        addChild(node)
+        loreFragmentNode = node
+    }
+
+    private func checkLoreFragmentCollection() {
+        guard let node = loreFragmentNode, !node.isCollected else { return }
+        if node.checkCollection(with: satelliteNode.position, satelliteRadius: Theme.Dimensions.satelliteRadius) {
+            loreFragmentNode = nil
+            HapticsManager.shared.playButtonPress()
+            gameDelegate?.loreFragmentCollected(id: node.fragmentId)
         }
     }
 
