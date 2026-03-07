@@ -75,6 +75,8 @@ struct ZoneCard: View {
     let zone: Int
     @ObservedObject var viewModel: GameViewModel
     @ObservedObject var campaignManager: CampaignManager
+    @State private var showBriefing = false
+    @State private var pendingLevel: Int?
 
     private var theme: ZoneTheme {
         ZoneThemes.theme(for: zone)
@@ -89,17 +91,31 @@ struct ZoneCard: View {
     }
 
     var body: some View {
-        VStack(spacing: 16) {
-            zoneHeader
-            if isUnlocked {
-                levelGrid
-            } else {
-                lockedOverlay
+        ZStack {
+            VStack(spacing: 16) {
+                zoneHeader
+                if isUnlocked {
+                    levelGrid
+                } else {
+                    lockedOverlay
+                }
+            }
+            .padding(20)
+            .glassBackground()
+            .opacity(isUnlocked ? 1.0 : 0.6)
+
+            if showBriefing {
+                MissionBriefingView(zone: zone) {
+                    campaignManager.markBriefingSeen(for: zone)
+                    showBriefing = false
+                    if let level = pendingLevel {
+                        pendingLevel = nil
+                        viewModel.startCampaignLevel(zone: zone, level: level)
+                    }
+                }
+                .transition(.opacity)
             }
         }
-        .padding(20)
-        .glassBackground()
-        .opacity(isUnlocked ? 1.0 : 0.6)
     }
 
     private var zoneHeader: some View {
@@ -164,9 +180,20 @@ struct ZoneCard: View {
                     stars: campaignManager.starsForLevel(zone: zone, level: level.level),
                     accentColor: theme.accentColor
                 ) {
-                    viewModel.startCampaignLevel(zone: zone, level: level.level)
+                    startLevel(level.level)
                 }
             }
+        }
+    }
+
+    private func startLevel(_ level: Int) {
+        if campaignManager.shouldShowBriefing(for: zone) {
+            pendingLevel = level
+            withAnimation(.easeIn(duration: 0.3)) {
+                showBriefing = true
+            }
+        } else {
+            viewModel.startCampaignLevel(zone: zone, level: level)
         }
     }
 

@@ -7,6 +7,9 @@ class CampaignManager: ObservableObject {
     private let starsKey = "orbitpoint.campaign.stars"
     private let completedKey = "orbitpoint.campaign.completed"
     private let bestTimesKey = "orbitpoint.campaign.bestTimes"
+    private let seenBriefingsKey = "orbitpoint.campaign.seenBriefings"
+
+    private var seenBriefings: Set<Int> = []
 
     @Published private(set) var levelStars: [String: Int] = [:]
     @Published private(set) var completedLevels: Set<String> = []
@@ -18,6 +21,17 @@ class CampaignManager: ObservableObject {
 
     private init() {
         loadProgress()
+    }
+
+    // MARK: - Mission Briefings
+
+    func shouldShowBriefing(for zone: Int) -> Bool {
+        !seenBriefings.contains(zone)
+    }
+
+    func markBriefingSeen(for zone: Int) {
+        seenBriefings.insert(zone)
+        UserDefaults.standard.set(Array(seenBriefings), forKey: seenBriefingsKey)
     }
 
     // MARK: - Zone/Level Access
@@ -118,6 +132,9 @@ class CampaignManager: ObservableObject {
         }
         if let data = UserDefaults.standard.dictionary(forKey: bestTimesKey) as? [String: TimeInterval] {
             bestTimes = data
+        }
+        if let data = UserDefaults.standard.array(forKey: seenBriefingsKey) as? [Int] {
+            seenBriefings = Set(data)
         }
     }
 
