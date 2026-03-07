@@ -15,7 +15,6 @@ class GameScene: SKScene {
 
     private var lastUpdateTime: TimeInterval = 0
     private var isGameActive = false
-    private var isResumingFromPause = false
 
     override init(size: CGSize) {
         super.init(size: size)
@@ -111,11 +110,12 @@ class GameScene: SKScene {
     }
 
     func pauseScene() {
+        ScoreManager.shared.pause(at: lastUpdateTime)
         isPaused = true
     }
 
     func resumeScene() {
-        isResumingFromPause = true
+        lastUpdateTime = 0
         isPaused = false
     }
 
@@ -130,15 +130,12 @@ class GameScene: SKScene {
         guard isGameActive else { return }
 
         if lastUpdateTime == 0 {
+            if ScoreManager.shared.currentScore == 0 {
+                ScoreManager.shared.startGame(at: currentTime)
+            } else {
+                ScoreManager.shared.resume(at: currentTime)
+            }
             lastUpdateTime = currentTime
-            ScoreManager.shared.startGame(at: currentTime)
-        }
-
-        if isResumingFromPause {
-            let pausedDuration = currentTime - lastUpdateTime
-            ScoreManager.shared.adjustForPause(duration: pausedDuration)
-            lastUpdateTime = currentTime
-            isResumingFromPause = false
             return
         }
 

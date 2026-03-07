@@ -24,6 +24,8 @@ class ScoreManager {
     private(set) var purchaseCount: Int = 0
 
     private var gameStartTime: TimeInterval = 0
+    private var totalPausedDuration: TimeInterval = 0
+    private var pauseStartTime: TimeInterval = 0
     private var isRunning = false
 
     private init() {
@@ -36,12 +38,25 @@ class ScoreManager {
         currentScore = 0
         lastEarnedCurrency = 0
         gameStartTime = time
+        totalPausedDuration = 0
+        pauseStartTime = 0
         isRunning = true
+    }
+
+    func pause(at time: TimeInterval) {
+        guard isRunning else { return }
+        pauseStartTime = time
+    }
+
+    func resume(at time: TimeInterval) {
+        guard isRunning, pauseStartTime > 0 else { return }
+        totalPausedDuration += time - pauseStartTime
+        pauseStartTime = 0
     }
 
     func update(currentTime: TimeInterval) {
         guard isRunning else { return }
-        currentScore = Int(currentTime - gameStartTime)
+        currentScore = Int(currentTime - gameStartTime - totalPausedDuration)
     }
 
     func adjustForPause(duration: TimeInterval) {

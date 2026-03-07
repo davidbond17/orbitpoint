@@ -95,8 +95,8 @@ class GameViewModel: ObservableObject {
     }
 
     func resumeGame() {
-        gameState = .playing
         gameScene?.resumeScene()
+        gameState = .playing
     }
 
     func showGameCenterLeaderboard() {
