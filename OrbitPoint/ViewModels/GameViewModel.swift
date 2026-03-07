@@ -21,6 +21,7 @@ class GameViewModel: ObservableObject {
     @Published var showStore: Bool = false
     @Published var showHowToPlay: Bool = false
     @Published var showDailyBonus: Bool = false
+    @Published var showLoreIntro: Bool = false
     @Published var newMilestoneUnlock: StoreItem? = nil
 
     @Published var currentGameMode: GameMode = .freePlay
@@ -28,6 +29,7 @@ class GameViewModel: ObservableObject {
     @Published var selectedZone: Int = 1
 
     private let hasSeenTutorialKey = "orbitpoint.hasSeenTutorial"
+    private let hasSeenLoreIntroKey = "orbitpoint.hasSeenLoreIntro"
 
     @AppStorage("soundEnabled") var soundEnabled: Bool = true
     @AppStorage("hapticsEnabled") var hapticsEnabled: Bool = true
@@ -147,6 +149,22 @@ class GameViewModel: ObservableObject {
     }
 
     func checkFirstLaunch() {
+        if !UserDefaults.standard.bool(forKey: hasSeenLoreIntroKey) {
+            showLoreIntro = true
+            return
+        }
+        if !UserDefaults.standard.bool(forKey: hasSeenTutorialKey) {
+            showHowToPlay = true
+        }
+        DailyBonusManager.shared.checkAvailability()
+        if DailyBonusManager.shared.bonusAvailable {
+            showDailyBonus = true
+        }
+    }
+
+    func markLoreIntroSeen() {
+        UserDefaults.standard.set(true, forKey: hasSeenLoreIntroKey)
+        showLoreIntro = false
         if !UserDefaults.standard.bool(forKey: hasSeenTutorialKey) {
             showHowToPlay = true
         }

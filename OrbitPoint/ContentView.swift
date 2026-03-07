@@ -28,6 +28,14 @@ struct ContentView: View {
                     .transition(.move(edge: .top).combined(with: .opacity))
                     .zIndex(11)
                 }
+
+                if viewModel.showLoreIntro {
+                    LoreIntroView {
+                        viewModel.markLoreIntroSeen()
+                    }
+                    .transition(.opacity)
+                    .zIndex(20)
+                }
             }
         }
         .background(Theme.Colors.background)
