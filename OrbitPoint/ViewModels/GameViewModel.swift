@@ -71,12 +71,14 @@ class GameViewModel: ObservableObject {
 
     func pauseGame() {
         gameState = .paused
+        gameScene?.pauseGame()
         gameScene?.isPaused = true
     }
 
     func resumeGame() {
-        gameState = .playing
+        gameScene?.resumeGame()
         gameScene?.isPaused = false
+        gameState = .playing
     }
 
     func showGameCenterLeaderboard() {

@@ -109,6 +109,14 @@ class GameScene: SKScene {
         isGameActive = false
     }
 
+    func pauseGame() {
+        ScoreManager.shared.pause(at: lastUpdateTime)
+    }
+
+    func resumeGame() {
+        lastUpdateTime = 0
+    }
+
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard isGameActive else { return }
         satelliteNode.reverseDirection()
@@ -120,8 +128,13 @@ class GameScene: SKScene {
         guard isGameActive else { return }
 
         if lastUpdateTime == 0 {
+            if ScoreManager.shared.currentScore == 0 {
+                ScoreManager.shared.startGame(at: currentTime)
+            } else {
+                ScoreManager.shared.resume(at: currentTime)
+            }
             lastUpdateTime = currentTime
-            ScoreManager.shared.startGame(at: currentTime)
+            return
         }
 
         let deltaTime = currentTime - lastUpdateTime
