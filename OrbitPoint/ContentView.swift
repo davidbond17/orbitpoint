@@ -56,12 +56,16 @@ struct ContentView: View {
         switch viewModel.gameState {
         case .menu:
             MainMenuView(viewModel: viewModel) {
-                viewModel.startGame()
+                viewModel.startFreePlay()
             }
             .transition(.opacity)
             .onAppear {
                 GameCenterManager.shared.showAccessPoint(true)
             }
+
+        case .campaignMap:
+            CampaignMapView(viewModel: viewModel)
+                .transition(.opacity)
 
         case .playing:
             VStack {
@@ -90,7 +94,12 @@ struct ContentView: View {
                     viewModel.resumeGame()
                 },
                 onQuit: {
-                    viewModel.returnToMenu()
+                    switch viewModel.currentGameMode {
+                    case .freePlay:
+                        viewModel.returnToMenu()
+                    case .campaign:
+                        viewModel.returnToCampaignMap()
+                    }
                 }
             )
             .transition(.opacity)
@@ -109,6 +118,32 @@ struct ContentView: View {
                 }
             )
             .transition(.opacity)
+
+        case .campaignLevelComplete:
+            if let result = viewModel.lastLevelResult {
+                CampaignLevelCompleteView(
+                    result: result,
+                    onNextLevel: {
+                        let nextLevel = result.levelConfig.level + 1
+                        let zone = result.levelConfig.zone
+                        if CampaignLevels.level(zone: zone, level: nextLevel) != nil {
+                            viewModel.startCampaignLevel(zone: zone, level: nextLevel)
+                        } else {
+                            viewModel.returnToCampaignMap()
+                        }
+                    },
+                    onRetry: {
+                        viewModel.startCampaignLevel(
+                            zone: result.levelConfig.zone,
+                            level: result.levelConfig.level
+                        )
+                    },
+                    onMap: {
+                        viewModel.returnToCampaignMap()
+                    }
+                )
+                .transition(.opacity)
+            }
         }
     }
 
@@ -142,6 +177,12 @@ class GameSceneDelegateAdapter: GameSceneDelegate {
     func gameDidEnd(score: Int, isNewHighScore: Bool) {
         Task { @MainActor in
             viewModel.handleGameOver(score: score, isNewHighScore: isNewHighScore)
+        }
+    }
+
+    func campaignLevelDidEnd(result: LevelResult) {
+        Task { @MainActor in
+            viewModel.handleCampaignLevelEnd(result: result)
         }
     }
 }

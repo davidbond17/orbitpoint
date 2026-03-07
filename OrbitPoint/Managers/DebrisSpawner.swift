@@ -8,17 +8,26 @@ class DebrisSpawner {
     private var spawnTimer: TimeInterval = 0
     private var currentSpawnInterval: TimeInterval = 2.0
 
-    private let initialSpawnInterval: TimeInterval = 2.0
-    private let minimumSpawnInterval: TimeInterval = 0.4
-    private let difficultyRampDuration: TimeInterval = 120.0
+    private var initialSpawnInterval: TimeInterval = 2.0
+    private var minimumSpawnInterval: TimeInterval = 0.4
+    private var difficultyRampDuration: TimeInterval = 120.0
 
-    private let debrisSpeed: ClosedRange<CGFloat> = 80...160
-    private let safeZoneRadius: CGFloat = 150
+    private var debrisSpeed: ClosedRange<CGFloat> = 80...160
+    private var safeZoneRadius: CGFloat = 150
 
     var gameTime: TimeInterval = 0
 
     init(scene: SKScene) {
         self.scene = scene
+    }
+
+    func configure(with config: DebrisConfig) {
+        initialSpawnInterval = config.initialSpawnInterval
+        minimumSpawnInterval = config.minimumSpawnInterval
+        difficultyRampDuration = config.difficultyRampDuration
+        debrisSpeed = config.debrisSpeedRange
+        safeZoneRadius = config.safeZoneRadius
+        currentSpawnInterval = initialSpawnInterval
     }
 
     func reset() {
