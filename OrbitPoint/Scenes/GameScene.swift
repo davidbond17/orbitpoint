@@ -201,7 +201,7 @@ class GameScene: SKScene {
             levelConfig = nil
             multiOrbitEnabled = true
             debrisSpawner.configure(with: .standard)
-            powerUpManager.configure(with: PowerUpConfig(enabled: true, spawnInterval: 15.0))
+            powerUpManager.configure(with: PowerUpConfig(enabled: true, spawnInterval: 15.0, availableTypes: [.shield, .slowField, .phaseShift, .orbitBoost]))
         case .campaign(let zone, let level):
             levelConfig = CampaignLevels.level(zone: zone, level: level)
             if let config = levelConfig {

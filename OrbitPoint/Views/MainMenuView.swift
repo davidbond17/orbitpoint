@@ -134,10 +134,15 @@ struct MainMenuView: View {
             }
             .padding(.bottom, 120)
 
-            Text("Tap to reverse orbit")
-                .font(.system(size: 14, weight: .medium, design: .rounded))
-                .foregroundColor(Theme.Colors.textSecondary.opacity(0.6))
-                .padding(.bottom, 40)
+            VStack(spacing: 4) {
+                Text("Tap to reverse orbit")
+                    .font(.system(size: 14, weight: .medium, design: .rounded))
+                    .foregroundColor(Theme.Colors.textSecondary.opacity(0.6))
+                Text("Swipe up/down to switch orbits")
+                    .font(.system(size: 12, weight: .medium, design: .rounded))
+                    .foregroundColor(Theme.Colors.textSecondary.opacity(0.4))
+            }
+            .padding(.bottom, 40)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
