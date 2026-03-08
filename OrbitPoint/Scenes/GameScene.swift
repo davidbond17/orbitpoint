@@ -441,6 +441,7 @@ class GameScene: SKScene {
                 self?.gameDelegate?.campaignLevelDidEnd(result: finalResult)
             }
         } else {
+            ScoreManager.shared.addBonusSeconds(Int(bonusScoreAccumulator))
             let isNewHighScore = ScoreManager.shared.endGame()
             let finalScore = ScoreManager.shared.currentScore
 

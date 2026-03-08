@@ -125,6 +125,10 @@ class ScoreManager {
         return true
     }
 
+    func addBonusSeconds(_ seconds: Int) {
+        currentScore += seconds
+    }
+
     func addCurrency(_ amount: Int) {
         totalCurrency += amount
         saveCurrency()
