@@ -77,9 +77,13 @@ struct ContentView: View {
                 .presentationDragIndicator(.visible)
         }
         .sheet(isPresented: $viewModel.showCodex) {
-            CodexView()
-                .presentationDetents([.large])
-                .presentationDragIndicator(.visible)
+            CodexView {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+                    viewModel.replayLoreIntro()
+                }
+            }
+            .presentationDetents([.large])
+            .presentationDragIndicator(.visible)
         }
         .sheet(isPresented: $viewModel.showHowToPlay) {
             HowToPlayView {

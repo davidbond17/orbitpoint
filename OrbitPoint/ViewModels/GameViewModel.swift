@@ -183,9 +183,20 @@ class GameViewModel: ObservableObject {
         }
     }
 
+    private var isReplayingIntro = false
+
+    func replayLoreIntro() {
+        isReplayingIntro = true
+        showLoreIntro = true
+    }
+
     func markLoreIntroSeen() {
+        let wasReplay = isReplayingIntro
+        isReplayingIntro = false
         UserDefaults.standard.set(true, forKey: hasSeenLoreIntroKey)
         showLoreIntro = false
+
+        guard !wasReplay else { return }
         if !UserDefaults.standard.bool(forKey: hasSeenTutorialKey) {
             showHowToPlay = true
         }

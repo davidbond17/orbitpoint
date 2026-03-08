@@ -4,11 +4,13 @@ struct CodexView: View {
 
     @StateObject private var loreManager = LoreManager.shared
     @Environment(\.dismiss) private var dismiss
+    var onReplayIntro: (() -> Void)? = nil
 
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 20) {
+                    missionBriefingCard
                     progressHeader
 
                     ForEach(CampaignLevels.allZones, id: \.self) { zone in
@@ -27,6 +29,43 @@ struct CodexView: View {
                         .foregroundColor(Theme.Colors.accent)
                 }
             }
+        }
+    }
+
+    private var missionBriefingCard: some View {
+        Button {
+            dismiss()
+            onReplayIntro?()
+        } label: {
+            HStack(spacing: 14) {
+                Image(systemName: "play.circle.fill")
+                    .font(.system(size: 28))
+                    .foregroundStyle(
+                        LinearGradient(
+                            colors: [Theme.Colors.accent, Color(red: 1.0, green: 0.6, blue: 0.2)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+
+                VStack(alignment: .leading, spacing: 3) {
+                    Text("Mission Briefing")
+                        .font(.system(size: 15, weight: .bold, design: .rounded))
+                        .foregroundColor(Theme.Colors.textPrimary)
+
+                    Text("Replay the intro sequence")
+                        .font(.system(size: 12, weight: .medium, design: .rounded))
+                        .foregroundColor(Theme.Colors.textSecondary)
+                }
+
+                Spacer()
+
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundColor(Theme.Colors.textSecondary.opacity(0.5))
+            }
+            .padding(14)
+            .glassBackground()
         }
     }
 
