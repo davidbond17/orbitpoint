@@ -48,11 +48,11 @@ struct MainMenuView: View {
                     .foregroundColor(Theme.Colors.textPrimary)
                     .offset(y: -10)
             }
-            .padding(.top, 40)
+            .padding(.top, 24)
 
             Spacer()
 
-            VStack(spacing: 16) {
+            VStack(spacing: 12) {
                 if viewModel.highScore > 0 {
                     HStack(spacing: 8) {
                         Image(systemName: "trophy.fill")
@@ -165,7 +165,7 @@ struct MainMenuView: View {
                 }
                 .foregroundColor(Theme.Colors.textPrimary)
             }
-            .padding(.bottom, 120)
+            .padding(.bottom, 40)
 
             VStack(spacing: 4) {
                 Text("Tap to reverse orbit")
