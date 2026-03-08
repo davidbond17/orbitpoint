@@ -9,13 +9,13 @@ struct LoreIntroView: View {
     @State private var subtitleOpacity: Double = 0
     @State private var showSkip = false
 
-    private let cards: [(title: String?, body: String)] = [
-        (nil, "The year is 3847."),
-        (nil, "Humanity's last star is dying."),
-        (nil, "A network of orbital satellites maintains its containment field — keeping it stable, keeping it alive."),
-        (nil, "One by one, the probes have fallen.\nDestroyed by debris. Lost to the void."),
-        ("YOU ARE OP-1", "The last autonomous probe.\nYour mission: stay in orbit.\nEvery second you hold delays the inevitable."),
-        (nil, "Tap to reverse direction.\nAvoid the debris.\nMake it count.")
+    private let cards: [(title: String?, body: String, voiceId: String)] = [
+        (nil, "The year is 3847.", "intro_1"),
+        (nil, "Humanity's last star is dying.", "intro_2"),
+        (nil, "A network of orbital satellites maintains its containment field — keeping it stable, keeping it alive.", "intro_3"),
+        (nil, "One by one, the probes have fallen.\nDestroyed by debris. Lost to the void.", "intro_4"),
+        ("YOU ARE OP-1", "The last autonomous probe.\nYour mission: stay in orbit.\nEvery second you hold delays the inevitable.", "intro_5"),
+        (nil, "Tap to reverse direction.\nAvoid the debris.\nMake it count.", "intro_6")
     ]
 
     var body: some View {
@@ -60,6 +60,7 @@ struct LoreIntroView: View {
                         .opacity(textOpacity)
                 } else {
                     Button {
+                        VoiceLineManager.shared.stop()
                         onComplete()
                     } label: {
                         Text("BEGIN MISSION")
@@ -71,6 +72,7 @@ struct LoreIntroView: View {
 
                 if showSkip && currentCard < cards.count - 1 {
                     Button {
+                        VoiceLineManager.shared.stop()
                         onComplete()
                     } label: {
                         Text("Skip")
@@ -123,6 +125,7 @@ struct LoreIntroView: View {
         withAnimation(.easeIn(duration: 1.0).delay(0.3)) {
             subtitleOpacity = 1.0
         }
+        VoiceLineManager.shared.play(cards[currentCard].voiceId)
     }
 
     private func advanceCard() {

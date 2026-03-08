@@ -90,6 +90,32 @@ class MusicManager {
         }
     }
 
+    func duckForVoice(duration: TimeInterval = 0.3) {
+        guard let player = audioPlayer else { return }
+        let targetVolume = volume * 0.2
+        let steps = 10
+        let volumeDecrement = (player.volume - targetVolume) / Float(steps)
+        let stepDuration = duration / Double(steps)
+        for i in 1...steps {
+            DispatchQueue.main.asyncAfter(deadline: .now() + stepDuration * Double(i)) {
+                player.volume = max(targetVolume, player.volume - volumeDecrement)
+            }
+        }
+    }
+
+    func restoreFromDuck(duration: TimeInterval = 0.5) {
+        guard let player = audioPlayer else { return }
+        let targetVolume = volume
+        let steps = 10
+        let volumeIncrement = (targetVolume - player.volume) / Float(steps)
+        let stepDuration = duration / Double(steps)
+        for i in 1...steps {
+            DispatchQueue.main.asyncAfter(deadline: .now() + stepDuration * Double(i)) {
+                player.volume = min(targetVolume, player.volume + volumeIncrement)
+            }
+        }
+    }
+
     func fadeOut(duration: TimeInterval = 1.0) {
         guard let player = audioPlayer, player.isPlaying else { return }
 

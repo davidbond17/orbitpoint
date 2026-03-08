@@ -8,6 +8,8 @@ struct MissionBriefingView: View {
     @State private var textOpacity: Double = 0
     @State private var headerOpacity: Double = 0
 
+    private var voiceLineId: String { "zone\(zone)_briefing" }
+
     private var theme: ZoneTheme {
         ZoneThemes.theme(for: zone)
     }
@@ -66,6 +68,7 @@ struct MissionBriefingView: View {
                 Spacer()
 
                 Button {
+                    VoiceLineManager.shared.stop()
                     onDismiss()
                 } label: {
                     Text("BEGIN")
@@ -75,6 +78,7 @@ struct MissionBriefingView: View {
                 .opacity(textOpacity)
 
                 Button {
+                    VoiceLineManager.shared.stop()
                     onDismiss()
                 } label: {
                     Text("Skip")
@@ -93,6 +97,9 @@ struct MissionBriefingView: View {
             }
             withAnimation(.easeIn(duration: 0.8).delay(0.4)) {
                 textOpacity = 1.0
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                VoiceLineManager.shared.play(voiceLineId)
             }
         }
     }

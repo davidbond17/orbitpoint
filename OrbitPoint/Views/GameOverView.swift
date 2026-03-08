@@ -116,6 +116,11 @@ struct GameOverView: View {
             withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
                 showContent = true
             }
+            if let lineId = VoiceLineManager.shared.randomGameOverLine() {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    VoiceLineManager.shared.play(lineId)
+                }
+            }
         }
     }
 }
