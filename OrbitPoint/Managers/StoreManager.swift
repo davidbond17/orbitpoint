@@ -9,11 +9,13 @@ class StoreManager: ObservableObject {
     private let equippedSatelliteKey = "orbitpoint.equipped.satellite"
     private let equippedSunKey = "orbitpoint.equipped.sun"
     private let equippedDebrisKey = "orbitpoint.equipped.debris"
+    private let equippedTrailKey = "orbitpoint.equipped.trail"
 
     @Published private(set) var unlockedItems: Set<String> = []
     @Published var equippedSatelliteId: String = "satellite_cyan"
     @Published var equippedSunId: String = "sun_classic"
     @Published var equippedDebrisId: String = "debris_red"
+    @Published var equippedTrailId: String = "trail_classic"
 
     var currentSatelliteColor: SKColor {
         if let item = StoreItems.satellites.first(where: { $0.id == equippedSatelliteId }) {
@@ -46,6 +48,13 @@ class StoreManager: ObservableObject {
         return Theme.Colors.debrisSK
     }
 
+    var currentTrailStyle: TrailStyle {
+        if let item = StoreItems.trails.first(where: { $0.id == equippedTrailId }) {
+            return item.trailStyle ?? .classic
+        }
+        return .classic
+    }
+
     private init() {
         loadUnlockedItems()
         loadEquippedItems()
@@ -57,6 +66,9 @@ class StoreManager: ObservableObject {
             unlockedItems.insert(item.id)
         }
         for item in StoreItems.debris where item.isDefault {
+            unlockedItems.insert(item.id)
+        }
+        for item in StoreItems.trails where item.isDefault {
             unlockedItems.insert(item.id)
         }
     }
@@ -111,7 +123,10 @@ class StoreManager: ObservableObject {
         case .debris:
             equippedDebrisId = item.id
             UserDefaults.standard.set(item.id, forKey: equippedDebrisKey)
-        case .theme, .trail, .background:
+        case .trail:
+            equippedTrailId = item.id
+            UserDefaults.standard.set(item.id, forKey: equippedTrailKey)
+        case .theme, .background:
             break
         }
 
@@ -148,6 +163,9 @@ class StoreManager: ObservableObject {
         }
         if let id = UserDefaults.standard.string(forKey: equippedDebrisKey) {
             equippedDebrisId = id
+        }
+        if let id = UserDefaults.standard.string(forKey: equippedTrailKey) {
+            equippedTrailId = id
         }
     }
 }
