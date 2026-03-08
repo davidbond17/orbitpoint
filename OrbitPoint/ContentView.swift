@@ -217,6 +217,51 @@ struct ContentView: View {
                 )
                 .transition(.opacity)
             }
+
+        case .dailyChallengeComplete:
+            DailyChallengeResultView(
+                score: viewModel.lastScore,
+                targetTime: Int(viewModel.dailyChallengeTargetTime),
+                todaysBest: DailyChallengeManager.shared.todaysBestTime,
+                streak: DailyChallengeManager.shared.currentStreak,
+                coinsEarned: viewModel.dailyChallengeCoinsEarned,
+                hasCompletedToday: DailyChallengeManager.shared.hasCompletedToday,
+                onTryAgain: {
+                    viewModel.startDailyChallenge()
+                },
+                onMenu: {
+                    viewModel.returnToMenu()
+                }
+            )
+            .transition(.opacity)
+
+        case .gauntletComplete:
+            GauntletResultView(
+                rounds: viewModel.lastGauntletRounds,
+                totalTime: viewModel.lastScore,
+                coinsEarned: viewModel.lastEarnedCurrency,
+                onPlayAgain: {
+                    viewModel.startGauntlet()
+                },
+                onMenu: {
+                    viewModel.returnToMenu()
+                }
+            )
+            .transition(.opacity)
+
+        case .timeAttackComplete:
+            TimeAttackResultView(
+                timeSurvived: Int(viewModel.lastTimeAttackTime),
+                completed: viewModel.lastTimeAttackCompleted,
+                coinsEarned: viewModel.lastEarnedCurrency,
+                onPlayAgain: {
+                    viewModel.startTimeAttack()
+                },
+                onMenu: {
+                    viewModel.returnToMenu()
+                }
+            )
+            .transition(.opacity)
         }
     }
 

@@ -11,6 +11,9 @@ class ScoreManager {
     private let totalCoinsEarnedKey = "orbitpoint.totalcoinsearned"
     private let totalCoinsSpentKey = "orbitpoint.totalcoinsspent"
     private let purchaseCountKey = "orbitpoint.purchasecount"
+    private let gauntletBestRoundsKey = "orbitpoint.gauntlet.bestrounds"
+    private let gauntletBestTimeKey = "orbitpoint.gauntlet.besttime"
+    private let timeAttackBestTimeKey = "orbitpoint.timeattack.besttime"
 
     private(set) var currentScore: Int = 0
     private(set) var highScore: Int = 0
@@ -22,6 +25,9 @@ class ScoreManager {
     private(set) var totalCoinsEarned: Int = 0
     private(set) var totalCoinsSpent: Int = 0
     private(set) var purchaseCount: Int = 0
+    private(set) var gauntletBestRounds: Int = 0
+    private(set) var gauntletBestTime: Int = 0
+    private(set) var timeAttackBestTime: Int = 0
 
     private var gameStartTime: TimeInterval = 0
     private var totalPausedDuration: TimeInterval = 0
@@ -105,6 +111,9 @@ class ScoreManager {
         totalCoinsEarned = UserDefaults.standard.integer(forKey: totalCoinsEarnedKey)
         totalCoinsSpent = UserDefaults.standard.integer(forKey: totalCoinsSpentKey)
         purchaseCount = UserDefaults.standard.integer(forKey: purchaseCountKey)
+        gauntletBestRounds = UserDefaults.standard.integer(forKey: gauntletBestRoundsKey)
+        gauntletBestTime = UserDefaults.standard.integer(forKey: gauntletBestTimeKey)
+        timeAttackBestTime = UserDefaults.standard.integer(forKey: timeAttackBestTimeKey)
     }
 
     private func saveStats() {
@@ -142,5 +151,28 @@ class ScoreManager {
     func resetCurrency() {
         totalCurrency = 0
         UserDefaults.standard.removeObject(forKey: currencyKey)
+    }
+
+    func updateGauntletBest(rounds: Int, time: Int) -> Bool {
+        var isNew = false
+        if rounds > gauntletBestRounds {
+            gauntletBestRounds = rounds
+            UserDefaults.standard.set(rounds, forKey: gauntletBestRoundsKey)
+            isNew = true
+        }
+        if time > gauntletBestTime {
+            gauntletBestTime = time
+            UserDefaults.standard.set(time, forKey: gauntletBestTimeKey)
+        }
+        return isNew
+    }
+
+    func updateTimeAttackBest(time: Int) -> Bool {
+        if time > timeAttackBestTime {
+            timeAttackBestTime = time
+            UserDefaults.standard.set(time, forKey: timeAttackBestTimeKey)
+            return true
+        }
+        return false
     }
 }

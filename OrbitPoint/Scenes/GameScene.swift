@@ -37,6 +37,14 @@ class GameScene: SKScene {
     private var previousPowerUp: PowerUpType?
     private var currentOrbitRadius: CGFloat = Theme.Dimensions.orbitRadius
     private var multiOrbitEnabled: Bool = true
+    private var dailyTargetTime: TimeInterval = 0
+
+    private(set) var gauntletRound: Int = 1
+    private var gauntletRoundTimer: TimeInterval = 0
+    var gauntletRoundsReached: Int { gauntletRound }
+
+    private(set) var timeAttackRemaining: TimeInterval = 60
+    private(set) var timeAttackCompleted: Bool = false
     private var innerOrbitPath: SKShapeNode?
     private var outerOrbitPath: SKShapeNode?
 
@@ -221,7 +229,14 @@ class GameScene: SKScene {
             )
             debrisSpawner.configure(with: zenDebris)
             powerUpManager.configure(with: PowerUpConfig(enabled: false))
-        case .dailyChallenge, .gauntlet, .timeAttack:
+        case .dailyChallenge:
+            levelConfig = nil
+            let daily = DailyChallengeManager.shared.generateConfig()
+            dailyTargetTime = daily.targetTime
+            multiOrbitEnabled = daily.debrisConfig.multiOrbitEnabled
+            debrisSpawner.configure(with: daily.debrisConfig)
+            powerUpManager.configure(with: daily.debrisConfig.powerUps)
+        case .gauntlet, .timeAttack:
             levelConfig = nil
             multiOrbitEnabled = true
             debrisSpawner.configure(with: .standard)
@@ -282,6 +297,9 @@ class GameScene: SKScene {
         targetTimeLabel.fontColor = SKColor(white: 1.0, alpha: 0.5)
         if let config = levelConfig {
             targetTimeLabel.text = "Target: \(Int(config.targetTime))s"
+            targetTimeLabel.run(SKAction.fadeAlpha(to: 1.0, duration: 0.2))
+        } else if gameMode == .dailyChallenge {
+            targetTimeLabel.text = "Target: \(Int(dailyTargetTime))s"
             targetTimeLabel.run(SKAction.fadeAlpha(to: 1.0, duration: 0.2))
         } else {
             targetTimeLabel.text = ""
@@ -380,7 +398,9 @@ class GameScene: SKScene {
         scoreLabel.text = "\(displayScore)"
 
         if let config = levelConfig {
-            updateCampaignTargetLabel(config: config)
+            updateCampaignTargetLabel(targetTime: config.targetTime)
+        } else if gameMode == .dailyChallenge {
+            updateCampaignTargetLabel(targetTime: dailyTargetTime)
         }
 
         spawnLoreFragmentIfNeeded()
@@ -405,8 +425,8 @@ class GameScene: SKScene {
         }
     }
 
-    private func updateCampaignTargetLabel(config: LevelConfig) {
-        let remaining = max(0, config.targetTime - gameElapsedTime)
+    private func updateCampaignTargetLabel(targetTime: TimeInterval) {
+        let remaining = max(0, targetTime - gameElapsedTime)
         if remaining > 0 {
             targetTimeLabel.text = "Target: \(Int(ceil(remaining)))s"
         } else {

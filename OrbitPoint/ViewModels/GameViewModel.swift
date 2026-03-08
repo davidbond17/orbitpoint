@@ -8,6 +8,9 @@ enum GameState {
     case gameOver
     case campaignMap
     case campaignLevelComplete
+    case dailyChallengeComplete
+    case gauntletComplete
+    case timeAttackComplete
 }
 
 @MainActor
@@ -32,6 +35,12 @@ class GameViewModel: ObservableObject {
     @Published var currentGameMode: GameMode = .freePlay
     @Published var lastLevelResult: LevelResult?
     @Published var selectedZone: Int = 1
+
+    @Published var dailyChallengeCoinsEarned: Int = 0
+    @Published var dailyChallengeTargetTime: TimeInterval = 0
+    @Published var lastGauntletRounds: Int = 0
+    @Published var lastTimeAttackTime: TimeInterval = 0
+    @Published var lastTimeAttackCompleted: Bool = false
 
     private let hasSeenTutorialKey = "orbitpoint.hasSeenTutorial"
     private let hasSeenLoreIntroKey = "orbitpoint.hasSeenLoreIntro"
@@ -130,13 +139,28 @@ class GameViewModel: ObservableObject {
         guard currentGameMode != .zen else { return }
         self.lastScore = score
         self.isNewHighScore = isNewHighScore
-        gameState = .gameOver
 
-        checkMilestoneUnlocks(score: score)
-
-        Task {
-            await GameCenterManager.shared.submitFreePlayScore(score)
-            await GameCenterManager.shared.reportAchievementsAfterGame(score: score)
+        switch currentGameMode {
+        case .dailyChallenge:
+            let daily = DailyChallengeManager.shared
+            dailyChallengeTargetTime = daily.generateConfig().targetTime
+            dailyChallengeCoinsEarned = daily.completeChallenge(survivalTime: score)
+            ScoreManager.shared.addCurrency(dailyChallengeCoinsEarned)
+            gameState = .dailyChallengeComplete
+        case .gauntlet:
+            lastGauntletRounds = gameScene?.gauntletRoundsReached ?? 1
+            gameState = .gauntletComplete
+        case .timeAttack:
+            lastTimeAttackCompleted = gameScene?.timeAttackCompleted ?? false
+            lastTimeAttackTime = TimeInterval(score)
+            gameState = .timeAttackComplete
+        default:
+            gameState = .gameOver
+            checkMilestoneUnlocks(score: score)
+            Task {
+                await GameCenterManager.shared.submitFreePlayScore(score)
+                await GameCenterManager.shared.reportAchievementsAfterGame(score: score)
+            }
         }
     }
 

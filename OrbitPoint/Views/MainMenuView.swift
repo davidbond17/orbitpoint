@@ -84,6 +84,26 @@ struct MainMenuView: View {
                 .buttonStyle(.glass)
                 .padding(.horizontal, 40)
 
+                Button {
+                    viewModel.startDailyChallenge()
+                } label: {
+                    HStack(spacing: 12) {
+                        Image(systemName: "calendar.badge.clock")
+                        Text("Daily Challenge")
+                        if DailyChallengeManager.shared.currentStreak > 0 {
+                            HStack(spacing: 2) {
+                                Image(systemName: "flame.fill")
+                                    .font(.system(size: 12))
+                                Text("\(DailyChallengeManager.shared.currentStreak)")
+                                    .font(.system(size: 13, weight: .bold, design: .rounded))
+                            }
+                            .foregroundColor(.orange)
+                        }
+                    }
+                }
+                .buttonStyle(.glass)
+                .padding(.horizontal, 40)
+
                 HStack(spacing: 10) {
                     ModeCard(icon: "leaf.fill", title: "Zen", color: .green) {
                         viewModel.startZenMode()
