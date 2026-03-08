@@ -50,4 +50,14 @@ class HapticsManager {
         guard isEnabled else { return }
         lightGenerator.impactOccurred(intensity: 0.6)
     }
+
+    func playPowerUpCollected() {
+        guard isEnabled else { return }
+        notificationGenerator.notificationOccurred(.success)
+    }
+
+    func playShieldBreak() {
+        guard isEnabled else { return }
+        heavyGenerator.impactOccurred()
+    }
 }

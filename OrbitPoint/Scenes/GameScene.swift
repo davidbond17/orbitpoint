@@ -245,7 +245,8 @@ class GameScene: SKScene {
         ) {
             powerUpManager.activate(collected)
             applyPowerUpVisual(collected)
-            HapticsManager.shared.playButtonPress()
+            HapticsManager.shared.playPowerUpCollected()
+            AudioManager.shared.playPowerUpCollected()
             gameDelegate?.powerUpCollected(type: collected)
         }
 
@@ -281,7 +282,8 @@ class GameScene: SKScene {
                 powerUpManager.consumeShield()
                 removePowerUpVisual(.shield)
                 previousPowerUp = nil
-                HapticsManager.shared.playCollision()
+                HapticsManager.shared.playShieldBreak()
+                AudioManager.shared.playShieldBreak()
                 gameDelegate?.shieldBroken()
             } else {
                 handleGameOver()

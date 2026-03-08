@@ -37,4 +37,14 @@ class AudioManager {
         guard isEnabled else { return }
         AudioServicesPlaySystemSound(1113)
     }
+
+    func playPowerUpCollected() {
+        guard isEnabled else { return }
+        AudioServicesPlaySystemSound(1117)
+    }
+
+    func playShieldBreak() {
+        guard isEnabled else { return }
+        AudioServicesPlaySystemSound(1520)
+    }
 }
