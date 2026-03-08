@@ -84,13 +84,22 @@ struct MainMenuView: View {
                 .buttonStyle(.glass)
                 .padding(.horizontal, 40)
 
-                HStack(spacing: 16) {
+                HStack(spacing: 12) {
                     Button {
                         viewModel.showStore = true
                     } label: {
                         Image(systemName: "bag.fill")
-                            .font(.system(size: 20, weight: .semibold))
-                            .frame(width: 56, height: 56)
+                            .font(.system(size: 18, weight: .semibold))
+                            .frame(width: 50, height: 50)
+                    }
+                    .glassBackground()
+
+                    Button {
+                        viewModel.replayLoreIntro()
+                    } label: {
+                        Image(systemName: "film.fill")
+                            .font(.system(size: 18, weight: .semibold))
+                            .frame(width: 50, height: 50)
                     }
                     .glassBackground()
 
@@ -98,8 +107,8 @@ struct MainMenuView: View {
                         viewModel.showCodex = true
                     } label: {
                         Image(systemName: "book.fill")
-                            .font(.system(size: 20, weight: .semibold))
-                            .frame(width: 56, height: 56)
+                            .font(.system(size: 18, weight: .semibold))
+                            .frame(width: 50, height: 50)
                     }
                     .glassBackground()
 
@@ -107,8 +116,8 @@ struct MainMenuView: View {
                         viewModel.showLeaderboard = true
                     } label: {
                         Image(systemName: "trophy")
-                            .font(.system(size: 20, weight: .semibold))
-                            .frame(width: 56, height: 56)
+                            .font(.system(size: 18, weight: .semibold))
+                            .frame(width: 50, height: 50)
                     }
                     .glassBackground()
 
@@ -116,8 +125,8 @@ struct MainMenuView: View {
                         viewModel.showSettings = true
                     } label: {
                         Image(systemName: "gearshape.fill")
-                            .font(.system(size: 20, weight: .semibold))
-                            .frame(width: 56, height: 56)
+                            .font(.system(size: 18, weight: .semibold))
+                            .frame(width: 50, height: 50)
                     }
                     .glassBackground()
                 }
