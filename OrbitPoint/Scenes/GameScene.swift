@@ -505,6 +505,7 @@ class GameScene: SKScene {
             multiOrbitEnabled: true
         )
         debrisSpawner.configure(with: config)
+        debrisSpawner.gameTime = 0
     }
 
     private func showRoundLabel() {
