@@ -6,37 +6,55 @@ struct StoreView: View {
     @ObservedObject private var storeManager = StoreManager.shared
     @Environment(\.dismiss) private var dismiss
 
-    @State private var selectedTab = 0
+    @State private var selectedTab: StoreTab = .satellite
+
+    private enum StoreTab: String, CaseIterable {
+        case satellite = "Satellite"
+        case sun = "Sun"
+        case debris = "Debris"
+        case trails = "Trails"
+        case backgrounds = "Backgrounds"
+        case themes = "Themes"
+    }
 
     var body: some View {
         VStack(spacing: 0) {
             header
 
-            Picker("Category", selection: $selectedTab) {
-                Text("Satellite").tag(0)
-                Text("Sun").tag(1)
-                Text("Debris").tag(2)
-                Text("Trails").tag(3)
-                Text("Themes").tag(4)
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    ForEach(StoreTab.allCases, id: \.self) { tab in
+                        Button {
+                            selectedTab = tab
+                        } label: {
+                            Text(tab.rawValue)
+                                .font(.system(size: 14, weight: .semibold, design: .rounded))
+                                .foregroundColor(selectedTab == tab ? .white : Theme.Colors.textSecondary)
+                                .padding(.horizontal, 16)
+                                .padding(.vertical, 8)
+                                .background(selectedTab == tab ? Theme.Colors.accent : Theme.Colors.glassBackground)
+                                .cornerRadius(20)
+                        }
+                    }
+                }
+                .padding(.horizontal, 24)
             }
-            .pickerStyle(.segmented)
-            .padding(.horizontal, 24)
             .padding(.bottom, 16)
 
             ScrollView {
                 switch selectedTab {
-                case 0:
+                case .satellite:
                     itemGrid(items: StoreItems.satellites, equippedId: storeManager.equippedSatelliteId)
-                case 1:
+                case .sun:
                     itemGrid(items: StoreItems.suns, equippedId: storeManager.equippedSunId)
-                case 2:
+                case .debris:
                     itemGrid(items: StoreItems.debris, equippedId: storeManager.equippedDebrisId)
-                case 3:
+                case .trails:
                     itemGrid(items: StoreItems.trails, equippedId: storeManager.equippedTrailId)
-                case 4:
+                case .backgrounds:
+                    itemGrid(items: StoreItems.backgrounds, equippedId: storeManager.equippedBackgroundId)
+                case .themes:
                     themeGrid
-                default:
-                    EmptyView()
                 }
             }
         }
