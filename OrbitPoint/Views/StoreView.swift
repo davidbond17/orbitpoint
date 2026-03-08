@@ -16,7 +16,8 @@ struct StoreView: View {
                 Text("Satellite").tag(0)
                 Text("Sun").tag(1)
                 Text("Debris").tag(2)
-                Text("Themes").tag(3)
+                Text("Trails").tag(3)
+                Text("Themes").tag(4)
             }
             .pickerStyle(.segmented)
             .padding(.horizontal, 24)
@@ -31,6 +32,8 @@ struct StoreView: View {
                 case 2:
                     itemGrid(items: StoreItems.debris, equippedId: storeManager.equippedDebrisId)
                 case 3:
+                    itemGrid(items: StoreItems.trails, equippedId: storeManager.equippedTrailId)
+                case 4:
                     themeGrid
                 default:
                     EmptyView()
