@@ -61,6 +61,7 @@ struct LoreIntroView: View {
                 } else {
                     Button {
                         VoiceLineManager.shared.stop()
+                        MusicManager.shared.restoreFromDuck()
                         onComplete()
                     } label: {
                         Text("BEGIN MISSION")
@@ -73,6 +74,7 @@ struct LoreIntroView: View {
                 if showSkip && currentCard < cards.count - 1 {
                     Button {
                         VoiceLineManager.shared.stop()
+                        MusicManager.shared.restoreFromDuck()
                         onComplete()
                     } label: {
                         Text("Skip")
@@ -92,6 +94,7 @@ struct LoreIntroView: View {
             }
         }
         .onAppear {
+            MusicManager.shared.duckForVoice()
             fadeIn()
             DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
                 withAnimation(.easeIn(duration: 0.3)) {
@@ -125,7 +128,7 @@ struct LoreIntroView: View {
         withAnimation(.easeIn(duration: 1.0).delay(0.3)) {
             subtitleOpacity = 1.0
         }
-        VoiceLineManager.shared.play(cards[currentCard].voiceId)
+        VoiceLineManager.shared.play(cards[currentCard].voiceId, duckMusic: false)
     }
 
     private func advanceCard() {
