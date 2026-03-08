@@ -29,6 +29,7 @@ struct DebrisConfig {
     let debrisSpeedRange: ClosedRange<CGFloat>
     let safeZoneRadius: CGFloat
     var hazards: HazardConfig = HazardConfig()
+    var powerUps: PowerUpConfig = PowerUpConfig()
 
     static let standard = DebrisConfig(
         initialSpawnInterval: 2.0,
