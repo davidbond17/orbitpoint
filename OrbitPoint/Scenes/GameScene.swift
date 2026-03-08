@@ -279,6 +279,7 @@ class GameScene: SKScene {
 
     func stopGame() {
         isGameActive = false
+        isPaused = false
         powerUpManager.reset()
     }
 
