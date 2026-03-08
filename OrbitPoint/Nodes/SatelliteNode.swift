@@ -102,18 +102,61 @@ class SatelliteNode: SKNode {
     private func spawnTrailNode() {
         guard let parentNode = parent else { return }
 
-        let trail = SKShapeNode(circleOfRadius: Theme.Dimensions.satelliteRadius * 0.6)
-        trail.fillColor = currentColor.withAlphaComponent(0.4)
+        let style = StoreManager.shared.currentTrailStyle
+        let trail: SKShapeNode
+        var fadeDuration = Theme.Animation.trailFadeDuration
+        var startAlpha: CGFloat = 0.6
+
+        switch style {
+        case .classic:
+            trail = SKShapeNode(circleOfRadius: Theme.Dimensions.satelliteRadius * 0.6)
+            trail.fillColor = currentColor.withAlphaComponent(0.4)
+
+        case .dotted:
+            trail = SKShapeNode(circleOfRadius: Theme.Dimensions.satelliteRadius * 0.3)
+            trail.fillColor = currentColor.withAlphaComponent(0.6)
+            fadeDuration = 0.3
+
+        case .dashed:
+            let size = CGSize(width: Theme.Dimensions.satelliteRadius * 1.2, height: Theme.Dimensions.satelliteRadius * 0.4)
+            trail = SKShapeNode(rectOf: size, cornerRadius: 2)
+            trail.fillColor = currentColor.withAlphaComponent(0.5)
+            trail.zRotation = currentAngle
+            fadeDuration = 0.5
+
+        case .sparkle:
+            trail = SKShapeNode(circleOfRadius: Theme.Dimensions.satelliteRadius * 0.4)
+            trail.fillColor = currentColor.withAlphaComponent(0.7)
+            startAlpha = 0.8
+            let rotate = SKAction.rotate(byAngle: .pi * 2, duration: fadeDuration)
+            trail.run(rotate)
+
+        case .rainbow:
+            trail = SKShapeNode(circleOfRadius: Theme.Dimensions.satelliteRadius * 0.6)
+            let hue = CGFloat(fmod(Double(currentAngle) / (.pi * 2), 1.0))
+            trail.fillColor = SKColor(hue: hue, saturation: 0.8, brightness: 1.0, alpha: 0.5)
+
+        case .fire:
+            trail = SKShapeNode(circleOfRadius: Theme.Dimensions.satelliteRadius * 0.5)
+            let mix = CGFloat.random(in: 0...1)
+            let r: CGFloat = 1.0
+            let g: CGFloat = 0.2 + mix * 0.4
+            let b: CGFloat = 0.05
+            trail.fillColor = SKColor(red: r, green: g, blue: b, alpha: 0.6)
+            startAlpha = 0.7
+            fadeDuration = 0.4
+        }
+
         trail.strokeColor = .clear
         trail.position = position
         trail.zPosition = 5
-        trail.alpha = 0.6
+        trail.alpha = startAlpha
 
         parentNode.addChild(trail)
         trailNodes.append(trail)
 
-        let fadeOut = SKAction.fadeOut(withDuration: Theme.Animation.trailFadeDuration)
-        let scaleDown = SKAction.scale(to: 0.3, duration: Theme.Animation.trailFadeDuration)
+        let fadeOut = SKAction.fadeOut(withDuration: fadeDuration)
+        let scaleDown = SKAction.scale(to: 0.3, duration: fadeDuration)
         let group = SKAction.group([fadeOut, scaleDown])
         let remove = SKAction.removeFromParent()
 
