@@ -10,6 +10,7 @@ struct CampaignLevelCompleteView: View {
     let onMap: () -> Void
 
     @State private var showContent = false
+    @State private var showShare = false
 
     private var passed: Bool { result.passed }
     private var stars: Int { result.starsEarned }
@@ -92,6 +93,19 @@ struct CampaignLevelCompleteView: View {
                     .foregroundColor(Theme.Colors.textSecondary)
                 }
                 .buttonStyle(.glass)
+
+                if passed {
+                    Button {
+                        showShare = true
+                    } label: {
+                        HStack(spacing: 8) {
+                            Image(systemName: "square.and.arrow.up")
+                            Text("Share")
+                        }
+                        .font(.system(size: 14, weight: .medium, design: .rounded))
+                        .foregroundColor(Theme.Colors.textSecondary)
+                    }
+                }
             }
             .padding(.horizontal, 40)
             .offset(y: showContent ? 0 : 50)
@@ -100,6 +114,11 @@ struct CampaignLevelCompleteView: View {
             Spacer()
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .sheet(isPresented: $showShare) {
+            if let image = ScoreCardRenderer.render(score: Int(result.survivalTime), mode: "Campaign", isHighScore: false) {
+                ShareSheet(items: [image])
+            }
+        }
         .onAppear {
             withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
                 showContent = true

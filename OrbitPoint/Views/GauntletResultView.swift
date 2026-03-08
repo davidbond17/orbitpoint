@@ -11,6 +11,7 @@ struct GauntletResultView: View {
     let onMenu: () -> Void
 
     @State private var showContent = false
+    @State private var showShare = false
 
     var body: some View {
         VStack(spacing: 32) {
@@ -112,6 +113,17 @@ struct GauntletResultView: View {
                     .foregroundColor(Theme.Colors.textSecondary)
                 }
                 .buttonStyle(.glass)
+
+                Button {
+                    showShare = true
+                } label: {
+                    HStack(spacing: 8) {
+                        Image(systemName: "square.and.arrow.up")
+                        Text("Share")
+                    }
+                    .font(.system(size: 14, weight: .medium, design: .rounded))
+                    .foregroundColor(Theme.Colors.textSecondary)
+                }
             }
             .padding(.horizontal, 40)
             .offset(y: showContent ? 0 : 50)
@@ -120,6 +132,11 @@ struct GauntletResultView: View {
             Spacer()
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .sheet(isPresented: $showShare) {
+            if let image = ScoreCardRenderer.render(score: rounds, mode: "Gauntlet", isHighScore: false) {
+                ShareSheet(items: [image])
+            }
+        }
         .onAppear {
             withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
                 showContent = true

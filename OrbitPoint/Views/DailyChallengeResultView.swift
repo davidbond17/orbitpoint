@@ -14,6 +14,7 @@ struct DailyChallengeResultView: View {
     let onMenu: () -> Void
 
     @State private var showContent = false
+    @State private var showShare = false
 
     private var passedTarget: Bool {
         score >= targetTime
@@ -136,6 +137,17 @@ struct DailyChallengeResultView: View {
                     .foregroundColor(Theme.Colors.textSecondary)
                 }
                 .buttonStyle(.glass)
+
+                Button {
+                    showShare = true
+                } label: {
+                    HStack(spacing: 8) {
+                        Image(systemName: "square.and.arrow.up")
+                        Text("Share")
+                    }
+                    .font(.system(size: 14, weight: .medium, design: .rounded))
+                    .foregroundColor(Theme.Colors.textSecondary)
+                }
             }
             .padding(.horizontal, 40)
             .offset(y: showContent ? 0 : 50)
@@ -144,6 +156,11 @@ struct DailyChallengeResultView: View {
             Spacer()
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .sheet(isPresented: $showShare) {
+            if let image = ScoreCardRenderer.render(score: score, mode: "Daily Challenge", isHighScore: false) {
+                ShareSheet(items: [image])
+            }
+        }
         .onAppear {
             withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
                 showContent = true
