@@ -11,6 +11,9 @@ class GameCenterManager: ObservableObject {
 
     private let freePlayLeaderboardID = "com.davidbond.orbitpoint.leaderboard"
     private let campaignStarsLeaderboardID = "com.davidbond.orbitpoint.campaign.stars"
+    private let dailyChallengeLeaderboardID = "com.davidbond.orbitpoint.daily"
+    private let gauntletLeaderboardID = "com.davidbond.orbitpoint.gauntlet"
+    private let timeAttackLeaderboardID = "com.davidbond.orbitpoint.timeattack"
 
     static func levelLeaderboardID(zone: Int, level: Int) -> String {
         "com.davidbond.orbitpoint.campaign.\(zone)_\(level)"
@@ -109,6 +112,48 @@ class GameCenterManager: ObservableObject {
             print("Campaign level \(zone)-\(level) time submitted: \(timeInSeconds)s")
         } catch {
             print("Failed to submit campaign level time: \(error.localizedDescription)")
+        }
+    }
+
+    func submitDailyChallengeScore(_ time: Int) async {
+        guard isAuthenticated else { return }
+        do {
+            try await GKLeaderboard.submitScore(
+                time,
+                context: 0,
+                player: GKLocalPlayer.local,
+                leaderboardIDs: [dailyChallengeLeaderboardID]
+            )
+        } catch {
+            print("Failed to submit daily challenge score: \(error.localizedDescription)")
+        }
+    }
+
+    func submitGauntletScore(_ rounds: Int) async {
+        guard isAuthenticated else { return }
+        do {
+            try await GKLeaderboard.submitScore(
+                rounds,
+                context: 0,
+                player: GKLocalPlayer.local,
+                leaderboardIDs: [gauntletLeaderboardID]
+            )
+        } catch {
+            print("Failed to submit gauntlet score: \(error.localizedDescription)")
+        }
+    }
+
+    func submitTimeAttackScore(_ time: Int) async {
+        guard isAuthenticated else { return }
+        do {
+            try await GKLeaderboard.submitScore(
+                time,
+                context: 0,
+                player: GKLocalPlayer.local,
+                leaderboardIDs: [timeAttackLeaderboardID]
+            )
+        } catch {
+            print("Failed to submit time attack score: \(error.localizedDescription)")
         }
     }
 

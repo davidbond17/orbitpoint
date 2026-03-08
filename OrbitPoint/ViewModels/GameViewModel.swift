@@ -147,15 +147,24 @@ class GameViewModel: ObservableObject {
             dailyChallengeCoinsEarned = daily.completeChallenge(survivalTime: score)
             ScoreManager.shared.addCurrency(dailyChallengeCoinsEarned)
             gameState = .dailyChallengeComplete
+            Task {
+                await GameCenterManager.shared.submitDailyChallengeScore(score)
+            }
         case .gauntlet:
             lastGauntletRounds = gameScene?.gauntletRoundsReached ?? 1
             _ = ScoreManager.shared.updateGauntletBest(rounds: lastGauntletRounds, time: score)
             gameState = .gauntletComplete
+            Task {
+                await GameCenterManager.shared.submitGauntletScore(lastGauntletRounds)
+            }
         case .timeAttack:
             lastTimeAttackCompleted = gameScene?.timeAttackCompleted ?? false
             lastTimeAttackTime = TimeInterval(score)
             _ = ScoreManager.shared.updateTimeAttackBest(time: score)
             gameState = .timeAttackComplete
+            Task {
+                await GameCenterManager.shared.submitTimeAttackScore(score)
+            }
         default:
             gameState = .gameOver
             checkMilestoneUnlocks(score: score)
