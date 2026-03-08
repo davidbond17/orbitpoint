@@ -15,7 +15,7 @@ struct LevelConfig: Identifiable {
     let threeStarTime: TimeInterval
     let bonusObjective: BonusObjective?
     let coinRewards: (oneStar: Int, twoStar: Int, threeStar: Int)
-    let debrisConfig: DebrisConfig
+    var debrisConfig: DebrisConfig
 
     var displayName: String {
         "\(zone)-\(level)"
@@ -30,6 +30,7 @@ struct DebrisConfig {
     let safeZoneRadius: CGFloat
     var hazards: HazardConfig = HazardConfig()
     var powerUps: PowerUpConfig = PowerUpConfig()
+    var multiOrbitEnabled: Bool = false
 
     static let standard = DebrisConfig(
         initialSpawnInterval: 2.0,

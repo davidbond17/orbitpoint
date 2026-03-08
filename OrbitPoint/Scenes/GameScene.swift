@@ -199,11 +199,13 @@ class GameScene: SKScene {
         switch mode {
         case .freePlay:
             levelConfig = nil
+            multiOrbitEnabled = true
             debrisSpawner.configure(with: .standard)
             powerUpManager.configure(with: PowerUpConfig(enabled: true, spawnInterval: 15.0))
         case .campaign(let zone, let level):
             levelConfig = CampaignLevels.level(zone: zone, level: level)
             if let config = levelConfig {
+                multiOrbitEnabled = config.debrisConfig.multiOrbitEnabled
                 debrisSpawner.configure(with: config.debrisConfig)
                 powerUpManager.configure(with: config.debrisConfig.powerUps)
             }

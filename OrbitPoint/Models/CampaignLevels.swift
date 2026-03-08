@@ -16,7 +16,11 @@ enum CampaignLevels {
     static let allZones: [Int] = [1, 2, 3, 4, 5]
 
     static func level(zone: Int, level: Int) -> LevelConfig? {
-        levels(for: zone).first { $0.level == level }
+        guard var config = levels(for: zone).first(where: { $0.level == level }) else { return nil }
+        if zone >= 2 {
+            config.debrisConfig.multiOrbitEnabled = true
+        }
+        return config
     }
 
     // MARK: - Zone 1: Sol's Edge (Tutorial + Baseline)
