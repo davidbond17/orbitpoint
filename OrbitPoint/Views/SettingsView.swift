@@ -6,6 +6,7 @@ struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var musicVolume: Float = MusicManager.shared.volume
     @State private var showStats = false
+    @State private var showMusicCredits = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -105,16 +106,14 @@ struct SettingsView: View {
             Spacer()
 
             VStack(spacing: 12) {
-                Text("Credits")
-                    .font(.system(size: 14, weight: .semibold, design: .rounded))
-                    .foregroundColor(Theme.Colors.textSecondary)
-
-                Link(destination: URL(string: "https://uppbeat.io/t/danijel-zambo/trap")!) {
+                Button {
+                    showMusicCredits = true
+                } label: {
                     HStack(spacing: 8) {
-                        Image(systemName: "music.note")
-                            .font(.system(size: 12))
-                        Text("Music by Danijel Zambo via Uppbeat")
-                            .font(.system(size: 12, weight: .medium, design: .rounded))
+                        Image(systemName: "music.note.list")
+                            .font(.system(size: 14))
+                        Text("Music Credits")
+                            .font(.system(size: 14, weight: .semibold, design: .rounded))
                     }
                     .foregroundColor(Theme.Colors.accent)
                 }
@@ -130,6 +129,11 @@ struct SettingsView: View {
         .sheet(isPresented: $showStats) {
             StatsView()
                 .presentationDetents([.large])
+                .presentationDragIndicator(.visible)
+        }
+        .sheet(isPresented: $showMusicCredits) {
+            MusicCreditsView()
+                .presentationDetents([.medium, .large])
                 .presentationDragIndicator(.visible)
         }
     }
