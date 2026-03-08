@@ -8,6 +8,7 @@ struct LoreIntroView: View {
     @State private var textOpacity: Double = 0
     @State private var subtitleOpacity: Double = 0
     @State private var showSkip = false
+    @State private var isTransitioning = false
 
     private let cards: [(title: String?, body: String, voiceId: String)] = [
         (nil, "The year is 3847.", "intro_1"),
@@ -132,14 +133,22 @@ struct LoreIntroView: View {
     }
 
     private func advanceCard() {
+        guard !isTransitioning else { return }
+        isTransitioning = true
+
         withAnimation(.easeOut(duration: 0.3)) {
             textOpacity = 0
             subtitleOpacity = 0
         }
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+            guard currentCard < cards.count - 1 else {
+                isTransitioning = false
+                return
+            }
             currentCard += 1
             fadeIn()
+            isTransitioning = false
         }
     }
 }
