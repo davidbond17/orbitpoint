@@ -35,6 +35,10 @@ class GameScene: SKScene {
     private var hasSpawnedLoreFragment = false
     private var bonusScoreAccumulator: TimeInterval = 0
     private var previousPowerUp: PowerUpType?
+    private var currentOrbitRadius: CGFloat = Theme.Dimensions.orbitRadius
+    private var multiOrbitEnabled: Bool = true
+    private var innerOrbitPath: SKShapeNode?
+    private var outerOrbitPath: SKShapeNode?
 
     override init(size: CGSize) {
         super.init(size: size)
@@ -48,6 +52,7 @@ class GameScene: SKScene {
     override func didMove(to view: SKView) {
         backgroundColor = Theme.Colors.backgroundSK
         setupScene()
+        setupGestureRecognizers()
     }
 
     private func setupScene() {
@@ -60,13 +65,15 @@ class GameScene: SKScene {
         starNode.position = center
         addChild(starNode)
 
+        currentOrbitRadius = Theme.Dimensions.orbitRadius
         satelliteNode = SatelliteNode()
         satelliteNode.orbitCenter = center
-        satelliteNode.orbitRadius = Theme.Dimensions.orbitRadius
+        satelliteNode.orbitRadius = currentOrbitRadius
+        satelliteNode.targetOrbitRadius = currentOrbitRadius
         satelliteNode.currentAngle = .pi / 2
         addChild(satelliteNode)
 
-        drawOrbitPath(center: center, radius: Theme.Dimensions.orbitRadius)
+        setupOrbitPaths(center: center)
 
         debrisSpawner = DebrisSpawner(scene: self)
         powerUpManager = PowerUpManager(scene: self)
@@ -74,21 +81,75 @@ class GameScene: SKScene {
         setupScoreLabel()
     }
 
-    private func drawOrbitPath(center: CGPoint, radius: CGFloat) {
-        let path = CGMutablePath()
-        path.addArc(
-            center: center,
-            radius: radius,
-            startAngle: 0,
-            endAngle: .pi * 2,
-            clockwise: true
-        )
+    private func setupOrbitPaths(center: CGPoint) {
+        innerOrbitPath?.removeFromParent()
+        outerOrbitPath?.removeFromParent()
 
-        let orbitPath = SKShapeNode(path: path)
-        orbitPath.strokeColor = SKColor.white.withAlphaComponent(0.1)
-        orbitPath.lineWidth = 1
-        orbitPath.zPosition = 1
-        addChild(orbitPath)
+        let innerPath = CGMutablePath()
+        innerPath.addArc(center: center, radius: Theme.Dimensions.innerOrbitRadius, startAngle: 0, endAngle: .pi * 2, clockwise: true)
+        let innerNode = SKShapeNode(path: innerPath)
+        innerNode.strokeColor = SKColor.white.withAlphaComponent(0.1)
+        innerNode.lineWidth = 1
+        innerNode.zPosition = 1
+        addChild(innerNode)
+        innerOrbitPath = innerNode
+
+        let outerPath = CGMutablePath()
+        outerPath.addArc(center: center, radius: Theme.Dimensions.outerOrbitRadius, startAngle: 0, endAngle: .pi * 2, clockwise: true)
+        let outerNode = SKShapeNode(path: outerPath)
+        outerNode.strokeColor = SKColor.white.withAlphaComponent(0.1)
+        outerNode.lineWidth = 1
+        outerNode.zPosition = 1
+        addChild(outerNode)
+        outerOrbitPath = outerNode
+    }
+
+    private func setupGestureRecognizers() {
+        guard let view = view else { return }
+
+        let tap = UITapGestureRecognizer(target: self, action: #selector(handleTap(_:)))
+        view.addGestureRecognizer(tap)
+
+        let swipeUp = UISwipeGestureRecognizer(target: self, action: #selector(handleSwipeUp(_:)))
+        swipeUp.direction = .up
+        view.addGestureRecognizer(swipeUp)
+
+        let swipeDown = UISwipeGestureRecognizer(target: self, action: #selector(handleSwipeDown(_:)))
+        swipeDown.direction = .down
+        view.addGestureRecognizer(swipeDown)
+
+        tap.require(toFail: swipeUp)
+        tap.require(toFail: swipeDown)
+    }
+
+    @objc private func handleTap(_ recognizer: UITapGestureRecognizer) {
+        guard isGameActive else { return }
+        satelliteNode.reverseDirection()
+        reverseCount += 1
+        if timeSinceLastReverse > longestNoReverseDuration {
+            longestNoReverseDuration = timeSinceLastReverse
+        }
+        timeSinceLastReverse = 0
+        HapticsManager.shared.playDirectionChange()
+        AudioManager.shared.playDirectionChange()
+    }
+
+    @objc private func handleSwipeUp(_ recognizer: UISwipeGestureRecognizer) {
+        guard isGameActive, multiOrbitEnabled else { return }
+        switchOrbit(to: Theme.Dimensions.outerOrbitRadius)
+    }
+
+    @objc private func handleSwipeDown(_ recognizer: UISwipeGestureRecognizer) {
+        guard isGameActive, multiOrbitEnabled else { return }
+        switchOrbit(to: Theme.Dimensions.innerOrbitRadius)
+    }
+
+    private func switchOrbit(to radius: CGFloat) {
+        guard radius != currentOrbitRadius else { return }
+        currentOrbitRadius = radius
+        satelliteNode.switchToOrbit(radius: radius)
+        HapticsManager.shared.playDirectionChange()
+        AudioManager.shared.playDirectionChange()
     }
 
     private func setupScoreLabel() {
@@ -157,6 +218,16 @@ class GameScene: SKScene {
         satelliteNode.currentAngle = .pi / 2
         satelliteNode.isClockwise = true
 
+        if multiOrbitEnabled {
+            currentOrbitRadius = Theme.Dimensions.innerOrbitRadius
+            satelliteNode.orbitRadius = currentOrbitRadius
+            satelliteNode.targetOrbitRadius = currentOrbitRadius
+        } else {
+            currentOrbitRadius = Theme.Dimensions.orbitRadius
+            satelliteNode.orbitRadius = currentOrbitRadius
+            satelliteNode.targetOrbitRadius = currentOrbitRadius
+        }
+
         satelliteNode.refreshColors()
         starNode.refreshColors()
 
@@ -197,18 +268,6 @@ class GameScene: SKScene {
     func resumeScene() {
         lastUpdateTime = 0
         isPaused = false
-    }
-
-    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        guard isGameActive else { return }
-        satelliteNode.reverseDirection()
-        reverseCount += 1
-        if timeSinceLastReverse > longestNoReverseDuration {
-            longestNoReverseDuration = timeSinceLastReverse
-        }
-        timeSinceLastReverse = 0
-        HapticsManager.shared.playDirectionChange()
-        AudioManager.shared.playDirectionChange()
     }
 
     override func update(_ currentTime: TimeInterval) {

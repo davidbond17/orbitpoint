@@ -34,6 +34,8 @@ enum Theme {
         static let starRadius: CGFloat = 30
         static let satelliteRadius: CGFloat = 8
         static let orbitRadius: CGFloat = 120
+        static let innerOrbitRadius: CGFloat = 100
+        static let outerOrbitRadius: CGFloat = 140
         static let debrisMinSize: CGFloat = 6
         static let debrisMaxSize: CGFloat = 14
 

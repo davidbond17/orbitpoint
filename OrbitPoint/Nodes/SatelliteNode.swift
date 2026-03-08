@@ -10,9 +10,11 @@ class SatelliteNode: SKNode {
 
     var orbitCenter: CGPoint = .zero
     var orbitRadius: CGFloat = Theme.Dimensions.orbitRadius
+    var targetOrbitRadius: CGFloat = Theme.Dimensions.orbitRadius
     var angularVelocity: CGFloat = Theme.Animation.orbitSpeed
     var currentAngle: CGFloat = 0
     var isClockwise: Bool = true
+    private(set) var isTransitioning: Bool = false
 
     private var lastTrailTime: TimeInterval = 0
     private let trailInterval: TimeInterval = 0.03
@@ -55,7 +57,25 @@ class SatelliteNode: SKNode {
         glowShape.fillColor = color.withAlphaComponent(0.4)
     }
 
+    func switchToOrbit(radius: CGFloat) {
+        guard radius != targetOrbitRadius else { return }
+        targetOrbitRadius = radius
+        isTransitioning = true
+    }
+
     func updateOrbit(deltaTime: TimeInterval, currentTime: TimeInterval) {
+        if isTransitioning {
+            let speed: CGFloat = 300
+            let diff = targetOrbitRadius - orbitRadius
+            let step = speed * CGFloat(deltaTime)
+            if abs(diff) <= step {
+                orbitRadius = targetOrbitRadius
+                isTransitioning = false
+            } else {
+                orbitRadius += (diff > 0 ? step : -step)
+            }
+        }
+
         let direction: CGFloat = isClockwise ? -1 : 1
         currentAngle += angularVelocity * CGFloat(deltaTime) * direction
 
