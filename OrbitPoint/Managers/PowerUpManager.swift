@@ -26,7 +26,7 @@ class PowerUpManager {
         activeTimeRemaining = 0
     }
 
-    func update(deltaTime: TimeInterval, center: CGPoint, orbitRadius: CGFloat) {
+    func update(deltaTime: TimeInterval, center: CGPoint, orbitRadius: CGFloat, orbitRadii: [CGFloat]? = nil) {
         guard config.enabled else { return }
 
         if let node = powerUpNode {
@@ -39,7 +39,8 @@ class PowerUpManager {
         if powerUpNode == nil && activePowerUp == nil {
             spawnTimer += deltaTime
             if spawnTimer >= config.spawnInterval {
-                spawnPowerUp(center: center, orbitRadius: orbitRadius)
+                let spawnRadius = orbitRadii?.randomElement() ?? orbitRadius
+                spawnPowerUp(center: center, orbitRadius: spawnRadius)
                 spawnTimer = 0
             }
         }

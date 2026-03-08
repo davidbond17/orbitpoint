@@ -25,6 +25,7 @@ class DebrisSpawner {
 
     var gameTime: TimeInterval = 0
     var debrisSpeedMultiplier: CGFloat = 1.0
+    var orbitRadii: [CGFloat]?
 
     init(scene: SKScene) {
         self.scene = scene
@@ -286,9 +287,18 @@ class DebrisSpawner {
         guard let scene = scene else { return }
         let startAngle = CGFloat.random(in: 0...(CGFloat.pi * 2))
         let span = CGFloat.random(in: (.pi / 4)...(.pi / 2))
+
+        let targetRadii: [CGFloat]
+        if let radii = orbitRadii {
+            targetRadii = radii
+        } else {
+            targetRadii = [Theme.Dimensions.orbitRadius]
+        }
+
+        let flareRadius = targetRadii.randomElement()!
         let flare = SolarFlareNode(
             center: starPosition,
-            radius: Theme.Dimensions.orbitRadius,
+            radius: flareRadius,
             arcStartAngle: startAngle,
             arcSpan: span
         )

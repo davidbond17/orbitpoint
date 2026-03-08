@@ -294,9 +294,15 @@ class GameScene: SKScene {
         let center = CGPoint(x: size.width / 2, y: size.height / 2)
 
         debrisSpawner.debrisSpeedMultiplier = powerUpManager.debrisSpeedMultiplier
+        debrisSpawner.orbitRadii = multiOrbitEnabled
+            ? [Theme.Dimensions.innerOrbitRadius, Theme.Dimensions.outerOrbitRadius]
+            : nil
         debrisSpawner.update(deltaTime: deltaTime, starPosition: starPosition)
 
-        powerUpManager.update(deltaTime: deltaTime, center: center, orbitRadius: Theme.Dimensions.orbitRadius)
+        let powerUpRadii: [CGFloat]? = multiOrbitEnabled
+            ? [Theme.Dimensions.innerOrbitRadius, Theme.Dimensions.outerOrbitRadius]
+            : nil
+        powerUpManager.update(deltaTime: deltaTime, center: center, orbitRadius: currentOrbitRadius, orbitRadii: powerUpRadii)
 
         if let collected = powerUpManager.checkCollection(
             satellitePosition: satelliteNode.position,
@@ -435,10 +441,13 @@ class GameScene: SKScene {
         hasSpawnedLoreFragment = true
         let center = CGPoint(x: size.width / 2, y: size.height / 2)
         let angle = CGFloat.random(in: 0...(CGFloat.pi * 2))
+        let spawnRadius: CGFloat = multiOrbitEnabled
+            ? [Theme.Dimensions.innerOrbitRadius, Theme.Dimensions.outerOrbitRadius].randomElement()!
+            : Theme.Dimensions.orbitRadius
         let node = LoreFragmentNode(fragmentId: fragment.id)
         node.position = CGPoint(
-            x: center.x + cos(angle) * Theme.Dimensions.orbitRadius,
-            y: center.y + sin(angle) * Theme.Dimensions.orbitRadius
+            x: center.x + cos(angle) * spawnRadius,
+            y: center.y + sin(angle) * spawnRadius
         )
         addChild(node)
         loreFragmentNode = node
