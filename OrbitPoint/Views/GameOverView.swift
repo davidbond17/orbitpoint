@@ -13,6 +13,7 @@ struct GameOverView: View {
 
     @State private var showContent = false
     @State private var showShare = false
+    @State private var showChallenge = false
 
     var body: some View {
         VStack(spacing: 32) {
@@ -111,15 +112,28 @@ struct GameOverView: View {
                 }
                 .buttonStyle(.glass)
 
-                Button {
-                    showShare = true
-                } label: {
-                    HStack(spacing: 8) {
-                        Image(systemName: "square.and.arrow.up")
-                        Text("Share")
+                HStack(spacing: 16) {
+                    Button {
+                        showShare = true
+                    } label: {
+                        HStack(spacing: 6) {
+                            Image(systemName: "square.and.arrow.up")
+                            Text("Share")
+                        }
+                        .font(.system(size: 14, weight: .medium, design: .rounded))
+                        .foregroundColor(Theme.Colors.textSecondary)
                     }
-                    .font(.system(size: 14, weight: .medium, design: .rounded))
-                    .foregroundColor(Theme.Colors.textSecondary)
+
+                    Button {
+                        showChallenge = true
+                    } label: {
+                        HStack(spacing: 6) {
+                            Image(systemName: "person.2.fill")
+                            Text("Challenge")
+                        }
+                        .font(.system(size: 14, weight: .medium, design: .rounded))
+                        .foregroundColor(.orange)
+                    }
                 }
             }
             .padding(.horizontal, 40)
@@ -134,6 +148,9 @@ struct GameOverView: View {
                 ShareSheet(items: [image])
             }
         }
+        .sheet(isPresented: $showChallenge) {
+            ShareSheet(items: challengeItems)
+        }
         .onAppear {
             withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
                 showContent = true
@@ -144,5 +161,16 @@ struct GameOverView: View {
                 }
             }
         }
+    }
+
+    private var challengeItems: [Any] {
+        var items: [Any] = [DeepLinkManager.shareText(score: score, mode: "Free Play")]
+        if let image = ScoreCardRenderer.render(score: score, mode: "Free Play", isHighScore: isNewHighScore) {
+            items.append(image)
+        }
+        if let url = DeepLinkManager.challengeURL(score: score, mode: "Free Play") {
+            items.append(url)
+        }
+        return items
     }
 }
