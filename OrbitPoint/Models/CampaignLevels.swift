@@ -235,7 +235,8 @@ enum CampaignLevels {
                 minimumSpawnInterval: 0.45,
                 difficultyRampDuration: 80,
                 debrisSpeedRange: 100...175,
-                safeZoneRadius: 135
+                safeZoneRadius: 135,
+                hazards: HazardConfig(cometsEnabled: true, cometInterval: 10.0)
             )
         ),
         LevelConfig(
@@ -249,7 +250,8 @@ enum CampaignLevels {
                 minimumSpawnInterval: 0.42,
                 difficultyRampDuration: 85,
                 debrisSpeedRange: 105...180,
-                safeZoneRadius: 130
+                safeZoneRadius: 130,
+                hazards: HazardConfig(cometsEnabled: true, cometInterval: 8.0)
             )
         ),
         LevelConfig(
@@ -263,7 +265,8 @@ enum CampaignLevels {
                 minimumSpawnInterval: 0.4,
                 difficultyRampDuration: 90,
                 debrisSpeedRange: 105...180,
-                safeZoneRadius: 130
+                safeZoneRadius: 130,
+                hazards: HazardConfig(cometsEnabled: true, cometInterval: 7.0)
             )
         ),
         LevelConfig(
@@ -277,7 +280,8 @@ enum CampaignLevels {
                 minimumSpawnInterval: 0.38,
                 difficultyRampDuration: 95,
                 debrisSpeedRange: 110...185,
-                safeZoneRadius: 130
+                safeZoneRadius: 130,
+                hazards: HazardConfig(cometsEnabled: true, cometInterval: 6.0)
             )
         ),
     ]
@@ -352,7 +356,8 @@ enum CampaignLevels {
                 minimumSpawnInterval: 0.42,
                 difficultyRampDuration: 80,
                 debrisSpeedRange: 70...140,
-                safeZoneRadius: 130
+                safeZoneRadius: 130,
+                hazards: HazardConfig(cometsEnabled: true, cometInterval: 10.0, solarFlaresEnabled: true, solarFlareInterval: 12.0)
             )
         ),
         LevelConfig(
@@ -366,7 +371,8 @@ enum CampaignLevels {
                 minimumSpawnInterval: 0.4,
                 difficultyRampDuration: 85,
                 debrisSpeedRange: 75...145,
-                safeZoneRadius: 125
+                safeZoneRadius: 125,
+                hazards: HazardConfig(cometsEnabled: true, cometInterval: 9.0, solarFlaresEnabled: true, solarFlareInterval: 10.0)
             )
         ),
         LevelConfig(
@@ -380,7 +386,8 @@ enum CampaignLevels {
                 minimumSpawnInterval: 0.38,
                 difficultyRampDuration: 90,
                 debrisSpeedRange: 75...150,
-                safeZoneRadius: 125
+                safeZoneRadius: 125,
+                hazards: HazardConfig(cometsEnabled: true, cometInterval: 8.0, solarFlaresEnabled: true, solarFlareInterval: 9.0)
             )
         ),
         LevelConfig(
@@ -394,7 +401,8 @@ enum CampaignLevels {
                 minimumSpawnInterval: 0.35,
                 difficultyRampDuration: 95,
                 debrisSpeedRange: 80...155,
-                safeZoneRadius: 120
+                safeZoneRadius: 120,
+                hazards: HazardConfig(cometsEnabled: true, cometInterval: 7.0, solarFlaresEnabled: true, solarFlareInterval: 8.0)
             )
         ),
     ]
@@ -441,7 +449,8 @@ enum CampaignLevels {
                 minimumSpawnInterval: 0.42,
                 difficultyRampDuration: 65,
                 debrisSpeedRange: 105...190,
-                safeZoneRadius: 125
+                safeZoneRadius: 125,
+                hazards: HazardConfig(cometsEnabled: true, cometInterval: 9.0, solarFlaresEnabled: true, solarFlareInterval: 11.0)
             )
         ),
         LevelConfig(
@@ -455,7 +464,8 @@ enum CampaignLevels {
                 minimumSpawnInterval: 0.4,
                 difficultyRampDuration: 70,
                 debrisSpeedRange: 110...195,
-                safeZoneRadius: 120
+                safeZoneRadius: 120,
+                hazards: HazardConfig(cometsEnabled: true, cometInterval: 8.0, solarFlaresEnabled: true, solarFlareInterval: 10.0, gravityWellsEnabled: true, gravityWellInterval: 15.0)
             )
         ),
         LevelConfig(
@@ -469,7 +479,8 @@ enum CampaignLevels {
                 minimumSpawnInterval: 0.38,
                 difficultyRampDuration: 70,
                 debrisSpeedRange: 110...200,
-                safeZoneRadius: 120
+                safeZoneRadius: 120,
+                hazards: HazardConfig(cometsEnabled: true, cometInterval: 7.0, solarFlaresEnabled: true, solarFlareInterval: 9.0, gravityWellsEnabled: true, gravityWellInterval: 14.0)
             )
         ),
         LevelConfig(
@@ -483,7 +494,8 @@ enum CampaignLevels {
                 minimumSpawnInterval: 0.35,
                 difficultyRampDuration: 75,
                 debrisSpeedRange: 115...200,
-                safeZoneRadius: 115
+                safeZoneRadius: 115,
+                hazards: HazardConfig(cometsEnabled: true, cometInterval: 6.0, solarFlaresEnabled: true, solarFlareInterval: 8.0, gravityWellsEnabled: true, gravityWellInterval: 12.0)
             )
         ),
         LevelConfig(
@@ -497,7 +509,8 @@ enum CampaignLevels {
                 minimumSpawnInterval: 0.33,
                 difficultyRampDuration: 80,
                 debrisSpeedRange: 115...200,
-                safeZoneRadius: 115
+                safeZoneRadius: 115,
+                hazards: HazardConfig(cometsEnabled: true, cometInterval: 5.0, solarFlaresEnabled: true, solarFlareInterval: 7.0, gravityWellsEnabled: true, gravityWellInterval: 11.0)
             )
         ),
         LevelConfig(
@@ -511,7 +524,8 @@ enum CampaignLevels {
                 minimumSpawnInterval: 0.3,
                 difficultyRampDuration: 85,
                 debrisSpeedRange: 120...210,
-                safeZoneRadius: 110
+                safeZoneRadius: 110,
+                hazards: HazardConfig(cometsEnabled: true, cometInterval: 5.0, solarFlaresEnabled: true, solarFlareInterval: 6.0, gravityWellsEnabled: true, gravityWellInterval: 10.0)
             )
         ),
     ]
@@ -530,7 +544,8 @@ enum CampaignLevels {
                 minimumSpawnInterval: 0.4,
                 difficultyRampDuration: 50,
                 debrisSpeedRange: 110...200,
-                safeZoneRadius: 120
+                safeZoneRadius: 120,
+                hazards: HazardConfig(cometsEnabled: true, cometInterval: 7.0, solarFlaresEnabled: true, solarFlareInterval: 9.0, gravityWellsEnabled: true, gravityWellInterval: 14.0)
             )
         ),
         LevelConfig(
@@ -544,7 +559,8 @@ enum CampaignLevels {
                 minimumSpawnInterval: 0.38,
                 difficultyRampDuration: 55,
                 debrisSpeedRange: 115...205,
-                safeZoneRadius: 115
+                safeZoneRadius: 115,
+                hazards: HazardConfig(cometsEnabled: true, cometInterval: 6.0, solarFlaresEnabled: true, solarFlareInterval: 8.0, gravityWellsEnabled: true, gravityWellInterval: 12.0)
             )
         ),
         LevelConfig(
@@ -558,7 +574,8 @@ enum CampaignLevels {
                 minimumSpawnInterval: 0.35,
                 difficultyRampDuration: 55,
                 debrisSpeedRange: 120...210,
-                safeZoneRadius: 115
+                safeZoneRadius: 115,
+                hazards: HazardConfig(cometsEnabled: true, cometInterval: 5.0, solarFlaresEnabled: true, solarFlareInterval: 7.0, gravityWellsEnabled: true, gravityWellInterval: 11.0)
             )
         ),
         LevelConfig(
@@ -572,7 +589,8 @@ enum CampaignLevels {
                 minimumSpawnInterval: 0.32,
                 difficultyRampDuration: 60,
                 debrisSpeedRange: 120...215,
-                safeZoneRadius: 110
+                safeZoneRadius: 110,
+                hazards: HazardConfig(cometsEnabled: true, cometInterval: 5.0, solarFlaresEnabled: true, solarFlareInterval: 6.0, gravityWellsEnabled: true, gravityWellInterval: 10.0)
             )
         ),
         LevelConfig(
@@ -586,7 +604,8 @@ enum CampaignLevels {
                 minimumSpawnInterval: 0.3,
                 difficultyRampDuration: 60,
                 debrisSpeedRange: 125...220,
-                safeZoneRadius: 110
+                safeZoneRadius: 110,
+                hazards: HazardConfig(cometsEnabled: true, cometInterval: 4.0, cometSpeedMultiplier: 2.5, solarFlaresEnabled: true, solarFlareInterval: 6.0, gravityWellsEnabled: true, gravityWellInterval: 9.0)
             )
         ),
         LevelConfig(
@@ -600,7 +619,8 @@ enum CampaignLevels {
                 minimumSpawnInterval: 0.28,
                 difficultyRampDuration: 65,
                 debrisSpeedRange: 125...225,
-                safeZoneRadius: 105
+                safeZoneRadius: 105,
+                hazards: HazardConfig(cometsEnabled: true, cometInterval: 4.0, cometSpeedMultiplier: 2.5, solarFlaresEnabled: true, solarFlareInterval: 5.0, gravityWellsEnabled: true, gravityWellInterval: 8.0)
             )
         ),
         LevelConfig(
@@ -614,7 +634,8 @@ enum CampaignLevels {
                 minimumSpawnInterval: 0.26,
                 difficultyRampDuration: 70,
                 debrisSpeedRange: 130...230,
-                safeZoneRadius: 105
+                safeZoneRadius: 105,
+                hazards: HazardConfig(cometsEnabled: true, cometInterval: 3.5, cometSpeedMultiplier: 2.5, solarFlaresEnabled: true, solarFlareInterval: 5.0, gravityWellsEnabled: true, gravityWellInterval: 7.0)
             )
         ),
         LevelConfig(
@@ -628,7 +649,8 @@ enum CampaignLevels {
                 minimumSpawnInterval: 0.25,
                 difficultyRampDuration: 75,
                 debrisSpeedRange: 130...240,
-                safeZoneRadius: 100
+                safeZoneRadius: 100,
+                hazards: HazardConfig(cometsEnabled: true, cometInterval: 3.0, cometSpeedMultiplier: 3.0, solarFlaresEnabled: true, solarFlareInterval: 4.0, gravityWellsEnabled: true, gravityWellInterval: 6.0)
             )
         ),
     ]

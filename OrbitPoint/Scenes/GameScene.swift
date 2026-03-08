@@ -94,8 +94,7 @@ class GameScene: SKScene {
         scoreLabel.alpha = 0
         addChild(scoreLabel)
 
-        targetTimeLabel = SKLabelNode(f
-                                      ontNamed: "SF Pro Rounded")
+        targetTimeLabel = SKLabelNode(fontNamed: "SF Pro Rounded")
         targetTimeLabel.fontSize = 16
         targetTimeLabel.fontColor = SKColor(white: 1.0, alpha: 0.5)
         targetTimeLabel.position = CGPoint(x: size.width / 2, y: size.height - 148)

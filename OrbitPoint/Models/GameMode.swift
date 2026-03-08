@@ -28,6 +28,7 @@ struct DebrisConfig {
     let difficultyRampDuration: TimeInterval
     let debrisSpeedRange: ClosedRange<CGFloat>
     let safeZoneRadius: CGFloat
+    var hazards: HazardConfig = HazardConfig()
 
     static let standard = DebrisConfig(
         initialSpawnInterval: 2.0,
@@ -36,6 +37,18 @@ struct DebrisConfig {
         debrisSpeedRange: 80...160,
         safeZoneRadius: 150
     )
+}
+
+struct HazardConfig {
+    var cometsEnabled: Bool = false
+    var cometInterval: TimeInterval = 8.0
+    var cometSpeedMultiplier: CGFloat = 2.0
+
+    var solarFlaresEnabled: Bool = false
+    var solarFlareInterval: TimeInterval = 10.0
+
+    var gravityWellsEnabled: Bool = false
+    var gravityWellInterval: TimeInterval = 12.0
 }
 
 enum BonusObjective: Equatable {
