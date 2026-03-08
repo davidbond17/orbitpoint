@@ -117,7 +117,7 @@ struct ContentView: View {
         case .playing:
             VStack {
                 HStack {
-                    if let powerUp = viewModel.activePowerUp {
+                    if viewModel.currentGameMode != .zen, let powerUp = viewModel.activePowerUp {
                         PowerUpHUDView(
                             powerUpType: powerUp,
                             timeRemaining: viewModel.powerUpTimeRemaining
@@ -129,18 +129,33 @@ struct ContentView: View {
 
                     Spacer()
 
-                    Button {
-                        viewModel.pauseGame()
-                    } label: {
-                        Image(systemName: "gearshape.fill")
-                            .font(.system(size: 18, weight: .semibold))
-                            .foregroundColor(Theme.Colors.textSecondary)
-                            .frame(width: 44, height: 44)
-                            .background(Theme.Colors.glassBackground)
-                            .clipShape(Circle())
+                    if viewModel.currentGameMode == .zen {
+                        Button {
+                            viewModel.returnToMenu()
+                        } label: {
+                            Image(systemName: "xmark")
+                                .font(.system(size: 14, weight: .medium))
+                                .foregroundColor(Theme.Colors.textSecondary.opacity(0.5))
+                                .frame(width: 36, height: 36)
+                                .background(Theme.Colors.glassBackground.opacity(0.5))
+                                .clipShape(Circle())
+                        }
+                        .padding(.trailing, 20)
+                        .padding(.top, 50)
+                    } else {
+                        Button {
+                            viewModel.pauseGame()
+                        } label: {
+                            Image(systemName: "gearshape.fill")
+                                .font(.system(size: 18, weight: .semibold))
+                                .foregroundColor(Theme.Colors.textSecondary)
+                                .frame(width: 44, height: 44)
+                                .background(Theme.Colors.glassBackground)
+                                .clipShape(Circle())
+                        }
+                        .padding(.trailing, 20)
+                        .padding(.top, 50)
                     }
-                    .padding(.trailing, 20)
-                    .padding(.top, 50)
                 }
                 Spacer()
             }
