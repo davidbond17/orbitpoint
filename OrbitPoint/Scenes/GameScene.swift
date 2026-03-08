@@ -270,6 +270,7 @@ class GameScene: SKScene {
     }
 
     func startGame() {
+        backgroundColor = StoreManager.shared.currentBackgroundColor
         isGameActive = true
         lastUpdateTime = 0
         reverseCount = 0

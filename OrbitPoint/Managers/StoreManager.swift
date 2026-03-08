@@ -10,12 +10,14 @@ class StoreManager: ObservableObject {
     private let equippedSunKey = "orbitpoint.equipped.sun"
     private let equippedDebrisKey = "orbitpoint.equipped.debris"
     private let equippedTrailKey = "orbitpoint.equipped.trail"
+    private let equippedBackgroundKey = "orbitpoint.equipped.background"
 
     @Published private(set) var unlockedItems: Set<String> = []
     @Published var equippedSatelliteId: String = "satellite_cyan"
     @Published var equippedSunId: String = "sun_classic"
     @Published var equippedDebrisId: String = "debris_red"
     @Published var equippedTrailId: String = "trail_classic"
+    @Published var equippedBackgroundId: String = "bg_deep_space"
 
     var currentSatelliteColor: SKColor {
         if let item = StoreItems.satellites.first(where: { $0.id == equippedSatelliteId }) {
@@ -48,6 +50,13 @@ class StoreManager: ObservableObject {
         return Theme.Colors.debrisSK
     }
 
+    var currentBackgroundColor: SKColor {
+        if let item = StoreItems.backgrounds.first(where: { $0.id == equippedBackgroundId }) {
+            return item.skColor
+        }
+        return SKColor(red: 0.05, green: 0.05, blue: 0.12, alpha: 1.0)
+    }
+
     var currentTrailStyle: TrailStyle {
         if let item = StoreItems.trails.first(where: { $0.id == equippedTrailId }) {
             return item.trailStyle ?? .classic
@@ -69,6 +78,9 @@ class StoreManager: ObservableObject {
             unlockedItems.insert(item.id)
         }
         for item in StoreItems.trails where item.isDefault {
+            unlockedItems.insert(item.id)
+        }
+        for item in StoreItems.backgrounds where item.isDefault {
             unlockedItems.insert(item.id)
         }
     }
@@ -126,7 +138,10 @@ class StoreManager: ObservableObject {
         case .trail:
             equippedTrailId = item.id
             UserDefaults.standard.set(item.id, forKey: equippedTrailKey)
-        case .theme, .background:
+        case .background:
+            equippedBackgroundId = item.id
+            UserDefaults.standard.set(item.id, forKey: equippedBackgroundKey)
+        case .theme:
             break
         }
 
@@ -166,6 +181,9 @@ class StoreManager: ObservableObject {
         }
         if let id = UserDefaults.standard.string(forKey: equippedTrailKey) {
             equippedTrailId = id
+        }
+        if let id = UserDefaults.standard.string(forKey: equippedBackgroundKey) {
+            equippedBackgroundId = id
         }
     }
 }
