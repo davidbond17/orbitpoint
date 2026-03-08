@@ -88,18 +88,20 @@ class GameScene: SKScene {
         let innerPath = CGMutablePath()
         innerPath.addArc(center: center, radius: Theme.Dimensions.innerOrbitRadius, startAngle: 0, endAngle: .pi * 2, clockwise: true)
         let innerNode = SKShapeNode(path: innerPath)
-        innerNode.strokeColor = SKColor.white.withAlphaComponent(0.1)
+        innerNode.strokeColor = SKColor.white
         innerNode.lineWidth = 1
         innerNode.zPosition = 1
+        innerNode.alpha = 0.08
         addChild(innerNode)
         innerOrbitPath = innerNode
 
         let outerPath = CGMutablePath()
         outerPath.addArc(center: center, radius: Theme.Dimensions.outerOrbitRadius, startAngle: 0, endAngle: .pi * 2, clockwise: true)
         let outerNode = SKShapeNode(path: outerPath)
-        outerNode.strokeColor = SKColor.white.withAlphaComponent(0.1)
+        outerNode.strokeColor = SKColor.white
         outerNode.lineWidth = 1
         outerNode.zPosition = 1
+        outerNode.alpha = 0.08
         addChild(outerNode)
         outerOrbitPath = outerNode
     }
@@ -150,6 +152,24 @@ class GameScene: SKScene {
         satelliteNode.switchToOrbit(radius: radius)
         HapticsManager.shared.playDirectionChange()
         AudioManager.shared.playDirectionChange()
+    }
+
+    private func updateOrbitHighlights() {
+        guard multiOrbitEnabled else {
+            innerOrbitPath?.alpha = 0
+            outerOrbitPath?.alpha = 0
+            return
+        }
+
+        let isOnInner = currentOrbitRadius == Theme.Dimensions.innerOrbitRadius
+        let activeAlpha: CGFloat = 0.2
+        let inactiveAlpha: CGFloat = 0.08
+
+        let targetInner: CGFloat = isOnInner ? activeAlpha : inactiveAlpha
+        let targetOuter: CGFloat = isOnInner ? inactiveAlpha : activeAlpha
+
+        innerOrbitPath?.alpha += (targetInner - (innerOrbitPath?.alpha ?? 0)) * 0.15
+        outerOrbitPath?.alpha += (targetOuter - (outerOrbitPath?.alpha ?? 0)) * 0.15
     }
 
     private func setupScoreLabel() {
@@ -289,6 +309,7 @@ class GameScene: SKScene {
         timeSinceLastReverse += deltaTime
 
         satelliteNode.updateOrbit(deltaTime: deltaTime, currentTime: currentTime)
+        updateOrbitHighlights()
 
         let starPosition = starNode.position
         let center = CGPoint(x: size.width / 2, y: size.height / 2)
