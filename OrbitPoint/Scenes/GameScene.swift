@@ -209,6 +209,23 @@ class GameScene: SKScene {
                 debrisSpawner.configure(with: config.debrisConfig)
                 powerUpManager.configure(with: config.debrisConfig.powerUps)
             }
+        case .zen:
+            levelConfig = nil
+            multiOrbitEnabled = true
+            let zenDebris = DebrisConfig(
+                initialSpawnInterval: 999,
+                minimumSpawnInterval: 999,
+                difficultyRampDuration: 999,
+                debrisSpeedRange: 0...0,
+                safeZoneRadius: 999
+            )
+            debrisSpawner.configure(with: zenDebris)
+            powerUpManager.configure(with: PowerUpConfig(enabled: false))
+        case .dailyChallenge, .gauntlet, .timeAttack:
+            levelConfig = nil
+            multiOrbitEnabled = true
+            debrisSpawner.configure(with: .standard)
+            powerUpManager.configure(with: PowerUpConfig(enabled: true, spawnInterval: 15.0))
         }
     }
 
@@ -232,6 +249,8 @@ class GameScene: SKScene {
         if let config = levelConfig {
             debrisSpawner.configure(with: config.debrisConfig)
             powerUpManager.configure(with: config.debrisConfig.powerUps)
+        } else if gameMode == .zen {
+            powerUpManager.configure(with: PowerUpConfig(enabled: false))
         } else {
             powerUpManager.configure(with: PowerUpConfig(enabled: true, spawnInterval: 15.0))
         }
@@ -254,7 +273,11 @@ class GameScene: SKScene {
         starNode.refreshColors()
 
         scoreLabel.text = "0"
-        setScoreVisible(true)
+        if gameMode == .zen {
+            setScoreVisible(false)
+        } else {
+            setScoreVisible(true)
+        }
 
         targetTimeLabel.fontColor = SKColor(white: 1.0, alpha: 0.5)
         if let config = levelConfig {
@@ -313,6 +336,8 @@ class GameScene: SKScene {
 
         satelliteNode.updateOrbit(deltaTime: deltaTime, currentTime: currentTime)
         updateOrbitHighlights()
+
+        if gameMode == .zen { return }
 
         let starPosition = starNode.position
         let center = CGPoint(x: size.width / 2, y: size.height / 2)

@@ -3,6 +3,10 @@ import Foundation
 enum GameMode: Equatable {
     case freePlay
     case campaign(zone: Int, level: Int)
+    case zen
+    case dailyChallenge
+    case gauntlet
+    case timeAttack
 }
 
 struct LevelConfig: Identifiable {

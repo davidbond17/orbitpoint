@@ -84,6 +84,19 @@ struct MainMenuView: View {
                 .buttonStyle(.glass)
                 .padding(.horizontal, 40)
 
+                HStack(spacing: 10) {
+                    ModeCard(icon: "leaf.fill", title: "Zen", color: .green) {
+                        viewModel.startZenMode()
+                    }
+                    ModeCard(icon: "bolt.fill", title: "Gauntlet", color: .orange) {
+                        viewModel.startGauntlet()
+                    }
+                    ModeCard(icon: "timer", title: "Time Attack", color: .red) {
+                        viewModel.startTimeAttack()
+                    }
+                }
+                .padding(.horizontal, 40)
+
                 HStack(spacing: 12) {
                     Button {
                         viewModel.showStore = true
@@ -145,6 +158,29 @@ struct MainMenuView: View {
             .padding(.bottom, 40)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+}
+
+struct ModeCard: View {
+    let icon: String
+    let title: String
+    let color: Color
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            VStack(spacing: 6) {
+                Image(systemName: icon)
+                    .font(.system(size: 20, weight: .semibold))
+                    .foregroundColor(color)
+                Text(title)
+                    .font(.system(size: 11, weight: .semibold, design: .rounded))
+                    .foregroundColor(Theme.Colors.textPrimary)
+            }
+            .frame(maxWidth: .infinity)
+            .frame(height: 60)
+            .glassBackground()
+        }
     }
 }
 

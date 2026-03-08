@@ -77,16 +77,57 @@ class GameViewModel: ObservableObject {
         gameScene?.startGame()
     }
 
+    func startZenMode() {
+        currentGameMode = .zen
+        gameScene?.configureForMode(.zen)
+        gameState = .playing
+        GameCenterManager.shared.showAccessPoint(false)
+        gameScene?.startGame()
+    }
+
+    func startDailyChallenge() {
+        currentGameMode = .dailyChallenge
+        gameScene?.configureForMode(.dailyChallenge)
+        gameState = .playing
+        GameCenterManager.shared.showAccessPoint(false)
+        gameScene?.startGame()
+    }
+
+    func startGauntlet() {
+        currentGameMode = .gauntlet
+        gameScene?.configureForMode(.gauntlet)
+        gameState = .playing
+        GameCenterManager.shared.showAccessPoint(false)
+        gameScene?.startGame()
+    }
+
+    func startTimeAttack() {
+        currentGameMode = .timeAttack
+        gameScene?.configureForMode(.timeAttack)
+        gameState = .playing
+        GameCenterManager.shared.showAccessPoint(false)
+        gameScene?.startGame()
+    }
+
     func startGame() {
         switch currentGameMode {
         case .freePlay:
             startFreePlay()
         case .campaign(let zone, let level):
             startCampaignLevel(zone: zone, level: level)
+        case .zen:
+            startZenMode()
+        case .dailyChallenge:
+            startDailyChallenge()
+        case .gauntlet:
+            startGauntlet()
+        case .timeAttack:
+            startTimeAttack()
         }
     }
 
     func handleGameOver(score: Int, isNewHighScore: Bool) {
+        guard currentGameMode != .zen else { return }
         self.lastScore = score
         self.isNewHighScore = isNewHighScore
         gameState = .gameOver

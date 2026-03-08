@@ -153,7 +153,7 @@ struct ContentView: View {
                 },
                 onQuit: {
                     switch viewModel.currentGameMode {
-                    case .freePlay:
+                    case .freePlay, .zen, .dailyChallenge, .gauntlet, .timeAttack:
                         viewModel.returnToMenu()
                     case .campaign:
                         viewModel.returnToCampaignMap()
