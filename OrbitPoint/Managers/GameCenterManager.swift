@@ -30,6 +30,16 @@ class GameCenterManager: ObservableObject {
         case bigSpender      = "com.davidbond.orbitpoint.big_spender"
         case frequentFlyer   = "com.davidbond.orbitpoint.frequent_flyer"
         case dedicatedPilot  = "com.davidbond.orbitpoint.dedicated_pilot"
+        case gauntletSurvivor  = "com.davidbond.orbitpoint.gauntlet_survivor"
+        case gauntletChampion  = "com.davidbond.orbitpoint.gauntlet_champion"
+        case dailyDevotee      = "com.davidbond.orbitpoint.daily_devotee"
+        case dailyWarrior      = "com.davidbond.orbitpoint.daily_warrior"
+        case timeAttackVictor  = "com.davidbond.orbitpoint.time_attack_victor"
+        case zenMaster         = "com.davidbond.orbitpoint.zen_master"
+        case campaignConqueror = "com.davidbond.orbitpoint.campaign_conqueror"
+        case levelFive         = "com.davidbond.orbitpoint.level_five"
+        case levelTen          = "com.davidbond.orbitpoint.level_ten"
+        case fashionista       = "com.davidbond.orbitpoint.fashionista"
     }
 
     private init() {}
@@ -218,6 +228,46 @@ class GameCenterManager: ObservableObject {
         if stats.purchaseCount >= 1 { toReport.append(.firstPurchase) }
         if stats.purchaseCount >= 5 { toReport.append(.collector) }
         if stats.totalCoinsSpent >= 500 { toReport.append(.bigSpender) }
+
+        await reportAchievements(toReport)
+    }
+
+    func reportAchievementsAfterModeComplete(mode: GameMode) async {
+        guard isAuthenticated else { return }
+        let stats = ScoreManager.shared
+        var toReport: [Achievement] = []
+
+        switch mode {
+        case .gauntlet:
+            if stats.gauntletBestRounds >= 5 { toReport.append(.gauntletSurvivor) }
+            if stats.gauntletBestRounds >= 10 { toReport.append(.gauntletChampion) }
+        case .dailyChallenge:
+            if stats.dailyChallengeBestStreak >= 7 { toReport.append(.dailyDevotee) }
+            if stats.dailyChallengeBestStreak >= 14 { toReport.append(.dailyWarrior) }
+        case .timeAttack:
+            if stats.timeAttackBestTime >= 60 { toReport.append(.timeAttackVictor) }
+        case .zen:
+            if stats.zenTotalTime >= 600 { toReport.append(.zenMaster) }
+        case .campaign:
+            let campaign = CampaignManager.shared
+            let allStars = (1...5).allSatisfy { campaign.zoneProgress($0) >= 1.0 }
+            if allStars { toReport.append(.campaignConqueror) }
+        default:
+            break
+        }
+
+        if stats.purchaseCount >= 10 { toReport.append(.fashionista) }
+
+        await reportAchievements(toReport)
+    }
+
+    func reportAchievementsAfterLevelUp() async {
+        guard isAuthenticated else { return }
+        let level = PlayerProgressionManager.shared.currentLevel
+        var toReport: [Achievement] = []
+
+        if level >= 5 { toReport.append(.levelFive) }
+        if level >= 10 { toReport.append(.levelTen) }
 
         await reportAchievements(toReport)
     }

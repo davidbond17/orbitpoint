@@ -149,6 +149,7 @@ class GameViewModel: ObservableObject {
         lastXPEarned = xp
         didLevelUp = PlayerProgressionManager.shared.addXP(xp)
 
+        let mode = currentGameMode
         switch currentGameMode {
         case .dailyChallenge:
             let daily = DailyChallengeManager.shared
@@ -159,6 +160,7 @@ class GameViewModel: ObservableObject {
             gameState = .dailyChallengeComplete
             Task {
                 await GameCenterManager.shared.submitDailyChallengeScore(score)
+                await GameCenterManager.shared.reportAchievementsAfterModeComplete(mode: mode)
             }
         case .gauntlet:
             lastGauntletRounds = gameScene?.gauntletRoundsReached ?? 1
@@ -166,6 +168,7 @@ class GameViewModel: ObservableObject {
             gameState = .gauntletComplete
             Task {
                 await GameCenterManager.shared.submitGauntletScore(lastGauntletRounds)
+                await GameCenterManager.shared.reportAchievementsAfterModeComplete(mode: mode)
             }
         case .timeAttack:
             lastTimeAttackCompleted = gameScene?.timeAttackCompleted ?? false
@@ -174,6 +177,7 @@ class GameViewModel: ObservableObject {
             gameState = .timeAttackComplete
             Task {
                 await GameCenterManager.shared.submitTimeAttackScore(score)
+                await GameCenterManager.shared.reportAchievementsAfterModeComplete(mode: mode)
             }
         default:
             ScoreManager.shared.recordFreePlayGame(score: score)
@@ -182,6 +186,12 @@ class GameViewModel: ObservableObject {
             Task {
                 await GameCenterManager.shared.submitFreePlayScore(score)
                 await GameCenterManager.shared.reportAchievementsAfterGame(score: score)
+            }
+        }
+
+        if didLevelUp {
+            Task {
+                await GameCenterManager.shared.reportAchievementsAfterLevelUp()
             }
         }
     }
@@ -222,6 +232,7 @@ class GameViewModel: ObservableObject {
                     CampaignManager.shared.totalStars
                 )
                 await GameCenterManager.shared.reportAchievementsAfterGame(score: Int(result.survivalTime))
+                await GameCenterManager.shared.reportAchievementsAfterModeComplete(mode: .campaign(zone: 0, level: 0))
             }
         }
     }
