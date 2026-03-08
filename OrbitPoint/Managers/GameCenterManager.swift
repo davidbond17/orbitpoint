@@ -287,6 +287,46 @@ class GameCenterManager: ObservableObject {
         }
     }
 
+    struct LeaderboardEntry: Identifiable {
+        let id = UUID()
+        let rank: Int
+        let playerName: String
+        let score: Int
+        let isLocalPlayer: Bool
+    }
+
+    func loadLeaderboardEntries(leaderboardID: String, scope: GKLeaderboard.PlayerScope, count: Int = 25) async -> [LeaderboardEntry] {
+        guard isAuthenticated else { return [] }
+        do {
+            let leaderboards = try await GKLeaderboard.loadLeaderboards(IDs: [leaderboardID])
+            guard let leaderboard = leaderboards.first else { return [] }
+
+            let (_, entries, _) = try await leaderboard.loadEntries(for: scope, timeScope: .allTime, range: NSRange(location: 1, length: count))
+
+            return (entries ?? []).map { entry in
+                LeaderboardEntry(
+                    rank: entry.rank,
+                    playerName: entry.player.displayName,
+                    score: entry.score,
+                    isLocalPlayer: entry.player == GKLocalPlayer.local
+                )
+            }
+        } catch {
+            print("Failed to load leaderboard entries: \(error.localizedDescription)")
+            return []
+        }
+    }
+
+    func leaderboardID(for mode: String) -> String {
+        switch mode {
+        case "Free Play": return freePlayLeaderboardID
+        case "Gauntlet": return gauntletLeaderboardID
+        case "Time Attack": return timeAttackLeaderboardID
+        case "Daily": return dailyChallengeLeaderboardID
+        default: return freePlayLeaderboardID
+        }
+    }
+
     func loadHighScore() async -> Int? {
         guard isAuthenticated else { return nil }
 
