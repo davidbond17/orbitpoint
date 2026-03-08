@@ -155,6 +155,28 @@ enum StoreItems {
                   trailStyle: .fire)
     ]
 
+    static let backgrounds: [StoreItem] = [
+        StoreItem(id: "bg_deep_space", name: "Deep Space", type: .background, price: 0,
+                  previewColor: Color(red: 0.05, green: 0.05, blue: 0.12),
+                  skColor: SKColor(red: 0.05, green: 0.05, blue: 0.12, alpha: 1.0)),
+        StoreItem(id: "bg_nebula", name: "Nebula", type: .background, price: 150,
+                  previewColor: Color(red: 0.1, green: 0.05, blue: 0.2),
+                  skColor: SKColor(red: 0.1, green: 0.05, blue: 0.2, alpha: 1.0)),
+        StoreItem(id: "bg_dense_stars", name: "Dense Stars", type: .background, price: 100,
+                  previewColor: Color(red: 0.08, green: 0.08, blue: 0.15),
+                  skColor: SKColor(red: 0.08, green: 0.08, blue: 0.15, alpha: 1.0)),
+        StoreItem(id: "bg_aurora", name: "Aurora", type: .background, price: 250,
+                  previewColor: Color(red: 0.02, green: 0.12, blue: 0.15),
+                  skColor: SKColor(red: 0.02, green: 0.12, blue: 0.15, alpha: 1.0)),
+        StoreItem(id: "bg_void", name: "Void", type: .background, price: 0,
+                  previewColor: Color(red: 0.02, green: 0.02, blue: 0.05),
+                  skColor: SKColor(red: 0.02, green: 0.02, blue: 0.05, alpha: 1.0),
+                  milestoneRequirement: "Complete all Zone 4 levels"),
+        StoreItem(id: "bg_crimson", name: "Crimson", type: .background, price: 200,
+                  previewColor: Color(red: 0.15, green: 0.03, blue: 0.05),
+                  skColor: SKColor(red: 0.15, green: 0.03, blue: 0.05, alpha: 1.0))
+    ]
+
     static let themes: [ThemePack] = [
         ThemePack(
             id: "theme_neon",
