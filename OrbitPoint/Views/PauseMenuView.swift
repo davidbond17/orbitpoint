@@ -91,7 +91,7 @@ struct PauseMenuView: View {
             return item.id == storeManager.equippedSunId
         case .debris:
             return item.id == storeManager.equippedDebrisId
-        case .theme:
+        case .theme, .trail, .background:
             return false
         }
     }

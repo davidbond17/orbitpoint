@@ -6,6 +6,17 @@ enum ItemType: String, Codable {
     case sun
     case debris
     case theme
+    case trail
+    case background
+}
+
+enum TrailStyle: String, CaseIterable {
+    case classic
+    case dotted
+    case dashed
+    case sparkle
+    case rainbow
+    case fire
 }
 
 struct StoreItem: Identifiable {
@@ -16,8 +27,9 @@ struct StoreItem: Identifiable {
     let previewColor: Color
     let skColor: SKColor
     let milestoneRequirement: String?
+    let trailStyle: TrailStyle?
 
-    init(id: String, name: String, type: ItemType, price: Int, previewColor: Color, skColor: SKColor, milestoneRequirement: String? = nil) {
+    init(id: String, name: String, type: ItemType, price: Int, previewColor: Color, skColor: SKColor, milestoneRequirement: String? = nil, trailStyle: TrailStyle? = nil) {
         self.id = id
         self.name = name
         self.type = type
@@ -25,6 +37,7 @@ struct StoreItem: Identifiable {
         self.previewColor = previewColor
         self.skColor = skColor
         self.milestoneRequirement = milestoneRequirement
+        self.trailStyle = trailStyle
     }
 
     var isDefault: Bool {
@@ -112,6 +125,34 @@ enum StoreItems {
                   previewColor: Color(red: 0.2, green: 0.3, blue: 0.9),
                   skColor: SKColor(red: 0.2, green: 0.3, blue: 0.9, alpha: 1.0),
                   milestoneRequirement: "Survive 120 seconds")
+    ]
+
+    static let trails: [StoreItem] = [
+        StoreItem(id: "trail_classic", name: "Classic", type: .trail, price: 0,
+                  previewColor: Color(red: 0.4, green: 0.8, blue: 1.0),
+                  skColor: SKColor(red: 0.4, green: 0.8, blue: 1.0, alpha: 1.0),
+                  trailStyle: .classic),
+        StoreItem(id: "trail_dotted", name: "Dotted", type: .trail, price: 75,
+                  previewColor: Color(red: 0.6, green: 0.9, blue: 1.0),
+                  skColor: SKColor(red: 0.6, green: 0.9, blue: 1.0, alpha: 1.0),
+                  trailStyle: .dotted),
+        StoreItem(id: "trail_dashed", name: "Dashed", type: .trail, price: 100,
+                  previewColor: Color(red: 0.5, green: 0.7, blue: 1.0),
+                  skColor: SKColor(red: 0.5, green: 0.7, blue: 1.0, alpha: 1.0),
+                  trailStyle: .dashed),
+        StoreItem(id: "trail_sparkle", name: "Sparkle", type: .trail, price: 150,
+                  previewColor: Color(red: 1.0, green: 0.95, blue: 0.7),
+                  skColor: SKColor(red: 1.0, green: 0.95, blue: 0.7, alpha: 1.0),
+                  trailStyle: .sparkle),
+        StoreItem(id: "trail_rainbow", name: "Rainbow", type: .trail, price: 200,
+                  previewColor: Color(red: 0.9, green: 0.5, blue: 0.9),
+                  skColor: SKColor(red: 0.9, green: 0.5, blue: 0.9, alpha: 1.0),
+                  trailStyle: .rainbow),
+        StoreItem(id: "trail_fire", name: "Fire", type: .trail, price: 0,
+                  previewColor: Color(red: 1.0, green: 0.5, blue: 0.1),
+                  skColor: SKColor(red: 1.0, green: 0.5, blue: 0.1, alpha: 1.0),
+                  milestoneRequirement: "Reach Gauntlet Round 5",
+                  trailStyle: .fire)
     ]
 
     static let themes: [ThemePack] = [

@@ -111,7 +111,7 @@ class StoreManager: ObservableObject {
         case .debris:
             equippedDebrisId = item.id
             UserDefaults.standard.set(item.id, forKey: equippedDebrisKey)
-        case .theme:
+        case .theme, .trail, .background:
             break
         }
 
