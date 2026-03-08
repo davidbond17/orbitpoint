@@ -50,6 +50,9 @@ struct MainMenuView: View {
             }
             .padding(.top, 24)
 
+            PlayerLevelPill()
+                .padding(.top, 4)
+
             Spacer()
 
             VStack(spacing: 12) {
@@ -225,6 +228,40 @@ struct CoinDisplay: View {
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 8)
+        .glassBackground()
+    }
+}
+
+struct PlayerLevelPill: View {
+
+    @ObservedObject private var progression = PlayerProgressionManager.shared
+
+    var body: some View {
+        VStack(spacing: 6) {
+            HStack(spacing: 8) {
+                Text("Lv.\(progression.currentLevel)")
+                    .font(.system(size: 14, weight: .bold, design: .rounded))
+                    .foregroundColor(Theme.Colors.accent)
+
+                Text(progression.levelTitle)
+                    .font(.system(size: 14, weight: .semibold, design: .rounded))
+                    .foregroundColor(Theme.Colors.textSecondary)
+            }
+
+            GeometryReader { geo in
+                ZStack(alignment: .leading) {
+                    RoundedRectangle(cornerRadius: 3)
+                        .fill(Theme.Colors.textSecondary.opacity(0.2))
+
+                    RoundedRectangle(cornerRadius: 3)
+                        .fill(Theme.Colors.accent)
+                        .frame(width: geo.size.width * progression.xpProgressFraction)
+                }
+            }
+            .frame(width: 120, height: 4)
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 10)
         .glassBackground()
     }
 }
