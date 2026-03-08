@@ -3,7 +3,7 @@ import SpriteKit
 
 struct ContentView: View {
 
-    @StateObject private var viewModel = GameViewModel()
+    @ObservedObject var viewModel: GameViewModel
     @State private var gameScene: GameScene?
     @State private var delegateAdapter: GameSceneDelegateAdapter?
 
@@ -346,5 +346,5 @@ class GameSceneDelegateAdapter: GameSceneDelegate {
 }
 
 #Preview {
-    ContentView()
+    ContentView(viewModel: GameViewModel())
 }

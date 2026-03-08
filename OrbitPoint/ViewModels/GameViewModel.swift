@@ -247,6 +247,20 @@ class GameViewModel: ObservableObject {
         GameCenterManager.shared.showAccessPoint(true)
     }
 
+    func handleChallenge(score: Int, mode: String) {
+        returnToMenu()
+        switch mode {
+        case "Gauntlet":
+            startGauntlet()
+        case "Time Attack":
+            startTimeAttack()
+        case "Daily Challenge":
+            startDailyChallenge()
+        default:
+            startGame()
+        }
+    }
+
     func returnToCampaignMap() {
         gameState = .campaignMap
         gameScene?.setScoreVisible(false)

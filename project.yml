@@ -43,6 +43,10 @@ targets:
         GKSupportsGameCenterLive: true
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
+        CFBundleURLTypes:
+          - CFBundleURLSchemes:
+              - orbitpoint
+            CFBundleURLName: com.davidbond.orbitpoint
         UISupportedInterfaceOrientations~ipad:
           - UIInterfaceOrientationPortrait
           - UIInterfaceOrientationPortraitUpsideDown
