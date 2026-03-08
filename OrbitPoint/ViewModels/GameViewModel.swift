@@ -149,10 +149,12 @@ class GameViewModel: ObservableObject {
             gameState = .dailyChallengeComplete
         case .gauntlet:
             lastGauntletRounds = gameScene?.gauntletRoundsReached ?? 1
+            _ = ScoreManager.shared.updateGauntletBest(rounds: lastGauntletRounds, time: score)
             gameState = .gauntletComplete
         case .timeAttack:
             lastTimeAttackCompleted = gameScene?.timeAttackCompleted ?? false
             lastTimeAttackTime = TimeInterval(score)
+            _ = ScoreManager.shared.updateTimeAttackBest(time: score)
             gameState = .timeAttackComplete
         default:
             gameState = .gameOver

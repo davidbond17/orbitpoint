@@ -236,11 +236,31 @@ class GameScene: SKScene {
             multiOrbitEnabled = daily.debrisConfig.multiOrbitEnabled
             debrisSpawner.configure(with: daily.debrisConfig)
             powerUpManager.configure(with: daily.debrisConfig.powerUps)
-        case .gauntlet, .timeAttack:
+        case .gauntlet:
             levelConfig = nil
             multiOrbitEnabled = true
+            gauntletRound = 1
+            gauntletRoundTimer = 0
+            let gauntletDebris = DebrisConfig(
+                initialSpawnInterval: 1.8,
+                minimumSpawnInterval: 0.4,
+                difficultyRampDuration: 120.0,
+                debrisSpeedRange: 90...170,
+                safeZoneRadius: 150
+            )
+            debrisSpawner.configure(with: gauntletDebris)
+            powerUpManager.configure(with: PowerUpConfig(
+                enabled: true,
+                spawnInterval: 15.0,
+                availableTypes: [.shield, .slowField, .phaseShift, .orbitBoost]
+            ))
+        case .timeAttack:
+            levelConfig = nil
+            multiOrbitEnabled = true
+            timeAttackRemaining = 60
+            timeAttackCompleted = false
             debrisSpawner.configure(with: .standard)
-            powerUpManager.configure(with: PowerUpConfig(enabled: true, spawnInterval: 15.0))
+            powerUpManager.configure(with: PowerUpConfig(enabled: false))
         }
     }
 
@@ -300,6 +320,10 @@ class GameScene: SKScene {
             targetTimeLabel.run(SKAction.fadeAlpha(to: 1.0, duration: 0.2))
         } else if gameMode == .dailyChallenge {
             targetTimeLabel.text = "Target: \(Int(dailyTargetTime))s"
+            targetTimeLabel.run(SKAction.fadeAlpha(to: 1.0, duration: 0.2))
+        } else if gameMode == .timeAttack {
+            targetTimeLabel.fontColor = SKColor(white: 1.0, alpha: 0.8)
+            targetTimeLabel.text = "60s"
             targetTimeLabel.run(SKAction.fadeAlpha(to: 1.0, duration: 0.2))
         } else {
             targetTimeLabel.text = ""
@@ -403,6 +427,14 @@ class GameScene: SKScene {
             updateCampaignTargetLabel(targetTime: dailyTargetTime)
         }
 
+        if gameMode == .gauntlet {
+            updateGauntlet(deltaTime: deltaTime)
+        }
+
+        if gameMode == .timeAttack {
+            updateTimeAttack(deltaTime: deltaTime)
+        }
+
         spawnLoreFragmentIfNeeded()
         checkLoreFragmentCollection()
 
@@ -435,6 +467,86 @@ class GameScene: SKScene {
         }
     }
 
+    // MARK: - Gauntlet
+
+    private func updateGauntlet(deltaTime: TimeInterval) {
+        gauntletRoundTimer += deltaTime
+        if gauntletRoundTimer >= 30.0 {
+            gauntletRoundTimer = 0
+            gauntletRound += 1
+            escalateGauntletDifficulty()
+            showRoundLabel()
+        }
+    }
+
+    private func escalateGauntletDifficulty() {
+        let round = gauntletRound
+        let scaleFactor = pow(0.85, Double(round - 1))
+        let baseInterval = 1.8 * scaleFactor
+        let minInterval = max(0.2, 0.4 * scaleFactor)
+        let speedBoost = CGFloat(1.0 + 0.1 * Double(round - 1))
+
+        var hazards = HazardConfig()
+        hazards.cometsEnabled = round >= 3
+        hazards.cometInterval = 8.0 * scaleFactor
+        hazards.solarFlaresEnabled = round >= 5
+        hazards.solarFlareInterval = 10.0 * scaleFactor
+        hazards.gravityWellsEnabled = round >= 7
+        hazards.gravityWellInterval = 12.0 * scaleFactor
+
+        let config = DebrisConfig(
+            initialSpawnInterval: baseInterval,
+            minimumSpawnInterval: minInterval,
+            difficultyRampDuration: 30.0,
+            debrisSpeedRange: (90 * speedBoost)...(170 * speedBoost),
+            safeZoneRadius: 150,
+            hazards: hazards,
+            powerUps: PowerUpConfig(enabled: true, spawnInterval: 15.0, availableTypes: [.shield, .slowField, .phaseShift, .orbitBoost]),
+            multiOrbitEnabled: true
+        )
+        debrisSpawner.configure(with: config)
+    }
+
+    private func showRoundLabel() {
+        let label = SKLabelNode(fontNamed: "SF Pro Rounded")
+        label.fontSize = 32
+        label.fontColor = SKColor(red: 1, green: 0.7, blue: 0.3, alpha: 1)
+        label.text = "Round \(gauntletRound)"
+        label.position = CGPoint(x: size.width / 2, y: size.height / 2 + 100)
+        label.zPosition = 200
+        label.alpha = 0
+        addChild(label)
+
+        let sequence = SKAction.sequence([
+            SKAction.fadeAlpha(to: 1.0, duration: 0.3),
+            SKAction.wait(forDuration: 1.0),
+            SKAction.fadeAlpha(to: 0, duration: 0.5),
+            SKAction.removeFromParent()
+        ])
+        label.run(sequence)
+        HapticsManager.shared.playButtonPress()
+    }
+
+    // MARK: - Time Attack
+
+    private func updateTimeAttack(deltaTime: TimeInterval) {
+        timeAttackRemaining -= deltaTime
+        let remaining = max(0, Int(ceil(timeAttackRemaining)))
+        targetTimeLabel.text = "\(remaining)s"
+        targetTimeLabel.alpha = 1.0
+
+        if timeAttackRemaining <= 10 {
+            targetTimeLabel.fontColor = SKColor(red: 1.0, green: 0.3, blue: 0.3, alpha: 1.0)
+        } else {
+            targetTimeLabel.fontColor = SKColor(white: 1.0, alpha: 0.8)
+        }
+
+        if timeAttackRemaining <= 0 {
+            timeAttackCompleted = true
+            handleGameOver()
+        }
+    }
+
     private func handleGameOver() {
         isGameActive = false
 
@@ -442,14 +554,23 @@ class GameScene: SKScene {
             longestNoReverseDuration = timeSinceLastReverse
         }
 
-        HapticsManager.shared.playCollision()
-        AudioManager.shared.playCollision()
-
-        let flash = SKAction.sequence([
-            SKAction.colorize(with: .red, colorBlendFactor: 0.3, duration: 0.1),
-            SKAction.colorize(with: Theme.Colors.backgroundSK, colorBlendFactor: 0, duration: 0.2)
-        ])
-        scene?.run(flash)
+        if gameMode == .timeAttack && timeAttackCompleted {
+            HapticsManager.shared.playNewHighScore()
+            AudioManager.shared.playNewHighScore()
+            let flash = SKAction.sequence([
+                SKAction.colorize(with: .green, colorBlendFactor: 0.2, duration: 0.15),
+                SKAction.colorize(with: Theme.Colors.backgroundSK, colorBlendFactor: 0, duration: 0.3)
+            ])
+            scene?.run(flash)
+        } else {
+            HapticsManager.shared.playCollision()
+            AudioManager.shared.playCollision()
+            let flash = SKAction.sequence([
+                SKAction.colorize(with: .red, colorBlendFactor: 0.3, duration: 0.1),
+                SKAction.colorize(with: Theme.Colors.backgroundSK, colorBlendFactor: 0, duration: 0.2)
+            ])
+            scene?.run(flash)
+        }
 
         targetTimeLabel.run(SKAction.fadeAlpha(to: 0, duration: 0.3))
 
