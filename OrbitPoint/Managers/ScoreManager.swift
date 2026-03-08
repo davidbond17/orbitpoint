@@ -14,6 +14,11 @@ class ScoreManager {
     private let gauntletBestRoundsKey = "orbitpoint.gauntlet.bestrounds"
     private let gauntletBestTimeKey = "orbitpoint.gauntlet.besttime"
     private let timeAttackBestTimeKey = "orbitpoint.timeattack.besttime"
+    private let freePlayGamesKey = "orbitpoint.freeplay.games"
+    private let longestSurvivalKey = "orbitpoint.longestsurvival"
+    private let zenTotalTimeKey = "orbitpoint.zen.totaltime"
+    private let dailyGamesKey = "orbitpoint.daily.games"
+    private let dailyBestStreakKey = "orbitpoint.daily.beststreak"
 
     private(set) var currentScore: Int = 0
     private(set) var highScore: Int = 0
@@ -28,6 +33,11 @@ class ScoreManager {
     private(set) var gauntletBestRounds: Int = 0
     private(set) var gauntletBestTime: Int = 0
     private(set) var timeAttackBestTime: Int = 0
+    private(set) var freePlayGamesPlayed: Int = 0
+    private(set) var longestSurvival: Int = 0
+    private(set) var zenTotalTime: Int = 0
+    private(set) var dailyChallengeGamesPlayed: Int = 0
+    private(set) var dailyChallengeBestStreak: Int = 0
 
     private var gameStartTime: TimeInterval = 0
     private var totalPausedDuration: TimeInterval = 0
@@ -114,6 +124,11 @@ class ScoreManager {
         gauntletBestRounds = UserDefaults.standard.integer(forKey: gauntletBestRoundsKey)
         gauntletBestTime = UserDefaults.standard.integer(forKey: gauntletBestTimeKey)
         timeAttackBestTime = UserDefaults.standard.integer(forKey: timeAttackBestTimeKey)
+        freePlayGamesPlayed = UserDefaults.standard.integer(forKey: freePlayGamesKey)
+        longestSurvival = UserDefaults.standard.integer(forKey: longestSurvivalKey)
+        zenTotalTime = UserDefaults.standard.integer(forKey: zenTotalTimeKey)
+        dailyChallengeGamesPlayed = UserDefaults.standard.integer(forKey: dailyGamesKey)
+        dailyChallengeBestStreak = UserDefaults.standard.integer(forKey: dailyBestStreakKey)
     }
 
     private func saveStats() {
@@ -151,6 +166,29 @@ class ScoreManager {
     func resetCurrency() {
         totalCurrency = 0
         UserDefaults.standard.removeObject(forKey: currencyKey)
+    }
+
+    func recordFreePlayGame(score: Int) {
+        freePlayGamesPlayed += 1
+        UserDefaults.standard.set(freePlayGamesPlayed, forKey: freePlayGamesKey)
+        if score > longestSurvival {
+            longestSurvival = score
+            UserDefaults.standard.set(longestSurvival, forKey: longestSurvivalKey)
+        }
+    }
+
+    func recordZenTime(_ seconds: Int) {
+        zenTotalTime += seconds
+        UserDefaults.standard.set(zenTotalTime, forKey: zenTotalTimeKey)
+    }
+
+    func recordDailyChallengeGame(streak: Int) {
+        dailyChallengeGamesPlayed += 1
+        UserDefaults.standard.set(dailyChallengeGamesPlayed, forKey: dailyGamesKey)
+        if streak > dailyChallengeBestStreak {
+            dailyChallengeBestStreak = streak
+            UserDefaults.standard.set(dailyChallengeBestStreak, forKey: dailyBestStreakKey)
+        }
     }
 
     func updateGauntletBest(rounds: Int, time: Int) -> Bool {

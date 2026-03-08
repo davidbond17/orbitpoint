@@ -138,7 +138,10 @@ class GameViewModel: ObservableObject {
     }
 
     func handleGameOver(score: Int, isNewHighScore: Bool) {
-        guard currentGameMode != .zen else { return }
+        if currentGameMode == .zen {
+            ScoreManager.shared.recordZenTime(score)
+            return
+        }
         self.lastScore = score
         self.isNewHighScore = isNewHighScore
 
@@ -152,6 +155,7 @@ class GameViewModel: ObservableObject {
             dailyChallengeTargetTime = daily.generateConfig().targetTime
             dailyChallengeCoinsEarned = daily.completeChallenge(survivalTime: score)
             ScoreManager.shared.addCurrency(dailyChallengeCoinsEarned)
+            ScoreManager.shared.recordDailyChallengeGame(streak: daily.currentStreak)
             gameState = .dailyChallengeComplete
             Task {
                 await GameCenterManager.shared.submitDailyChallengeScore(score)
@@ -172,6 +176,7 @@ class GameViewModel: ObservableObject {
                 await GameCenterManager.shared.submitTimeAttackScore(score)
             }
         default:
+            ScoreManager.shared.recordFreePlayGame(score: score)
             gameState = .gameOver
             checkMilestoneUnlocks(score: score)
             Task {
