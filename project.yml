@@ -26,6 +26,7 @@ targets:
       - OrbitPoint
     settings:
       base:
+        DEVELOPMENT_TEAM: 24B5N75QKW
         PRODUCT_BUNDLE_IDENTIFIER: com.davidbond.orbitpoint
         INFOPLIST_KEY_CFBundleDisplayName: OrbitPoint
     entitlements:
