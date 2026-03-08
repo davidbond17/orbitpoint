@@ -25,6 +25,9 @@ class GameViewModel: ObservableObject {
     @Published var showCodex: Bool = false
     @Published var newMilestoneUnlock: StoreItem? = nil
     @Published var collectedLoreFragment: LoreFragment? = nil
+    @Published var activePowerUp: PowerUpType? = nil
+    @Published var powerUpTimeRemaining: TimeInterval = 0
+    @Published var powerUpToast: PowerUpType? = nil
 
     @Published var currentGameMode: GameMode = .freePlay
     @Published var lastLevelResult: LevelResult?
@@ -134,6 +137,8 @@ class GameViewModel: ObservableObject {
     func returnToMenu() {
         currentGameMode = .freePlay
         gameState = .menu
+        activePowerUp = nil
+        powerUpTimeRemaining = 0
         gameScene?.setScoreVisible(false)
         gameScene?.stopGame()
         GameCenterManager.shared.showAccessPoint(true)
@@ -198,6 +203,29 @@ class GameViewModel: ObservableObject {
         LoreManager.shared.collectFragment(id)
         if let fragment = LoreFragments.fragment(for: id) {
             collectedLoreFragment = fragment
+        }
+    }
+
+    func handlePowerUpCollected(type: PowerUpType) {
+        withAnimation(.spring(response: 0.3)) {
+            activePowerUp = type
+            powerUpToast = type
+        }
+        if type != .shield {
+            powerUpTimeRemaining = type.duration
+        }
+    }
+
+    func handlePowerUpExpired() {
+        withAnimation(.easeOut(duration: 0.3)) {
+            activePowerUp = nil
+            powerUpTimeRemaining = 0
+        }
+    }
+
+    func handleShieldBroken() {
+        withAnimation(.easeOut(duration: 0.3)) {
+            activePowerUp = nil
         }
     }
 }

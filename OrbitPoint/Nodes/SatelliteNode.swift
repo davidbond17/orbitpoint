@@ -115,4 +115,67 @@ class SatelliteNode: SKNode {
         }
         trailNodes.removeAll()
     }
+
+    // MARK: - Power-Up Visuals
+
+    private var shieldRing: SKShapeNode?
+    private var savedTrailColor: SKColor?
+
+    func showShieldEffect() {
+        guard shieldRing == nil else { return }
+        let ring = SKShapeNode(circleOfRadius: Theme.Dimensions.satelliteRadius + 6)
+        ring.fillColor = .clear
+        ring.strokeColor = SKColor(red: 0.3, green: 0.8, blue: 1.0, alpha: 0.8)
+        ring.lineWidth = 2
+        ring.glowWidth = 4
+        ring.zPosition = 21
+        ring.name = "shieldRing"
+        addChild(ring)
+        shieldRing = ring
+    }
+
+    func removeShieldEffect() {
+        guard let ring = shieldRing else { return }
+        let burst = SKAction.group([
+            SKAction.scale(to: 3.0, duration: 0.2),
+            SKAction.fadeOut(withDuration: 0.2)
+        ])
+        ring.run(SKAction.sequence([burst, SKAction.removeFromParent()]))
+        shieldRing = nil
+    }
+
+    func showPhaseShift() {
+        bodyNode.alpha = 0.3
+        glowNode.alpha = 0.2
+        let shimmer = SKAction.sequence([
+            SKAction.fadeAlpha(to: 0.15, duration: 0.3),
+            SKAction.fadeAlpha(to: 0.35, duration: 0.3)
+        ])
+        bodyNode.run(SKAction.repeatForever(shimmer), withKey: "phaseShimmer")
+    }
+
+    func removePhaseShift() {
+        bodyNode.removeAction(forKey: "phaseShimmer")
+        bodyNode.alpha = 1.0
+        glowNode.alpha = 1.0
+    }
+
+    func showOrbitBoost() {
+        savedTrailColor = currentColor
+        let gold = SKColor(red: 1.0, green: 0.85, blue: 0.2, alpha: 1.0)
+        currentColor = gold
+        bodyNode.fillColor = gold
+        glowShape.fillColor = gold.withAlphaComponent(0.4)
+    }
+
+    func removeOrbitBoost() {
+        if let saved = savedTrailColor {
+            currentColor = saved
+            bodyNode.fillColor = saved
+            glowShape.fillColor = saved.withAlphaComponent(0.4)
+            savedTrailColor = nil
+        } else {
+            refreshColors()
+        }
+    }
 }

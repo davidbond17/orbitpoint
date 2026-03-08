@@ -4,6 +4,10 @@ protocol GameSceneDelegate: AnyObject {
     func gameDidEnd(score: Int, isNewHighScore: Bool)
     func campaignLevelDidEnd(result: LevelResult)
     func loreFragmentCollected(id: String)
+    func powerUpCollected(type: PowerUpType)
+    func powerUpExpired()
+    func shieldBroken()
+    func powerUpTimeUpdated(remaining: TimeInterval)
 }
 
 class GameScene: SKScene {
@@ -13,6 +17,7 @@ class GameScene: SKScene {
     private var starNode: StarNode!
     private var satelliteNode: SatelliteNode!
     private var debrisSpawner: DebrisSpawner!
+    private var powerUpManager: PowerUpManager!
     private var scoreLabel: SKLabelNode!
     private var targetTimeLabel: SKLabelNode!
 
@@ -28,6 +33,8 @@ class GameScene: SKScene {
     private var loreFragmentNode: LoreFragmentNode?
     private var loreSpawnTime: TimeInterval = 0
     private var hasSpawnedLoreFragment = false
+    private var bonusScoreAccumulator: TimeInterval = 0
+    private var previousPowerUp: PowerUpType?
 
     override init(size: CGSize) {
         super.init(size: size)
@@ -62,6 +69,7 @@ class GameScene: SKScene {
         drawOrbitPath(center: center, radius: Theme.Dimensions.orbitRadius)
 
         debrisSpawner = DebrisSpawner(scene: self)
+        powerUpManager = PowerUpManager(scene: self)
 
         setupScoreLabel()
     }
@@ -111,10 +119,12 @@ class GameScene: SKScene {
         case .freePlay:
             levelConfig = nil
             debrisSpawner.configure(with: .standard)
+            powerUpManager.configure(with: PowerUpConfig(enabled: true, spawnInterval: 15.0))
         case .campaign(let zone, let level):
             levelConfig = CampaignLevels.level(zone: zone, level: level)
             if let config = levelConfig {
                 debrisSpawner.configure(with: config.debrisConfig)
+                powerUpManager.configure(with: config.debrisConfig.powerUps)
             }
         }
     }
@@ -133,8 +143,14 @@ class GameScene: SKScene {
         gameElapsedTime = 0
 
         debrisSpawner.reset()
+        powerUpManager.reset()
+        bonusScoreAccumulator = 0
+        previousPowerUp = nil
         if let config = levelConfig {
             debrisSpawner.configure(with: config.debrisConfig)
+            powerUpManager.configure(with: config.debrisConfig.powerUps)
+        } else {
+            powerUpManager.configure(with: PowerUpConfig(enabled: true, spawnInterval: 15.0))
         }
 
         satelliteNode.clearTrails()
@@ -170,6 +186,7 @@ class GameScene: SKScene {
 
     func stopGame() {
         isGameActive = false
+        powerUpManager.reset()
     }
 
     func pauseScene() {
@@ -215,10 +232,37 @@ class GameScene: SKScene {
         satelliteNode.updateOrbit(deltaTime: deltaTime, currentTime: currentTime)
 
         let starPosition = starNode.position
+        let center = CGPoint(x: size.width / 2, y: size.height / 2)
+
+        debrisSpawner.debrisSpeedMultiplier = powerUpManager.debrisSpeedMultiplier
         debrisSpawner.update(deltaTime: deltaTime, starPosition: starPosition)
 
+        powerUpManager.update(deltaTime: deltaTime, center: center, orbitRadius: Theme.Dimensions.orbitRadius)
+
+        if let collected = powerUpManager.checkCollection(
+            satellitePosition: satelliteNode.position,
+            satelliteRadius: Theme.Dimensions.satelliteRadius
+        ) {
+            powerUpManager.activate(collected)
+            applyPowerUpVisual(collected)
+            HapticsManager.shared.playButtonPress()
+            gameDelegate?.powerUpCollected(type: collected)
+        }
+
+        if let active = powerUpManager.activePowerUp {
+            gameDelegate?.powerUpTimeUpdated(remaining: powerUpManager.activeTimeRemaining)
+            if active == .orbitBoost {
+                bonusScoreAccumulator += deltaTime
+            }
+        } else if previousPowerUp != nil {
+            removePowerUpVisual(previousPowerUp!)
+            gameDelegate?.powerUpExpired()
+        }
+        previousPowerUp = powerUpManager.activePowerUp
+
         ScoreManager.shared.update(currentTime: currentTime)
-        scoreLabel.text = "\(ScoreManager.shared.currentScore)"
+        let displayScore = ScoreManager.shared.currentScore + Int(bonusScoreAccumulator)
+        scoreLabel.text = "\(displayScore)"
 
         if let config = levelConfig {
             updateCampaignTargetLabel(config: config)
@@ -231,7 +275,17 @@ class GameScene: SKScene {
             satellitePosition: satelliteNode.position,
             satelliteRadius: Theme.Dimensions.satelliteRadius
         ) {
-            handleGameOver()
+            if powerUpManager.isPhaseShiftActive {
+                // Intangible — ignore collision
+            } else if powerUpManager.isShieldActive {
+                powerUpManager.consumeShield()
+                removePowerUpVisual(.shield)
+                previousPowerUp = nil
+                HapticsManager.shared.playCollision()
+                gameDelegate?.shieldBroken()
+            } else {
+                handleGameOver()
+            }
         }
     }
 
@@ -331,7 +385,8 @@ class GameScene: SKScene {
 
     private func checkLoreFragmentCollection() {
         guard let node = loreFragmentNode, !node.isCollected else { return }
-        if node.checkCollection(with: satelliteNode.position, satelliteRadius: Theme.Dimensions.satelliteRadius) {
+        let collectRadius = powerUpManager.effectiveCollectRadius
+        if node.checkCollection(with: satelliteNode.position, satelliteRadius: collectRadius) {
             loreFragmentNode = nil
             HapticsManager.shared.playButtonPress()
             gameDelegate?.loreFragmentCollected(id: node.fragmentId)
@@ -345,6 +400,37 @@ class GameScene: SKScene {
             return reverseCount >= target
         case .noReverseFor(let seconds):
             return longestNoReverseDuration >= seconds
+        }
+    }
+
+    // MARK: - Power-Up Visuals
+
+    private func applyPowerUpVisual(_ type: PowerUpType) {
+        if let prev = previousPowerUp, prev != type {
+            removePowerUpVisual(prev)
+        }
+        switch type {
+        case .shield:
+            satelliteNode.showShieldEffect()
+        case .phaseShift:
+            satelliteNode.showPhaseShift()
+        case .orbitBoost:
+            satelliteNode.showOrbitBoost()
+        case .slowField, .magnet:
+            break
+        }
+    }
+
+    private func removePowerUpVisual(_ type: PowerUpType) {
+        switch type {
+        case .shield:
+            satelliteNode.removeShieldEffect()
+        case .phaseShift:
+            satelliteNode.removePhaseShift()
+        case .orbitBoost:
+            satelliteNode.removeOrbitBoost()
+        case .slowField, .magnet:
+            break
         }
     }
 }

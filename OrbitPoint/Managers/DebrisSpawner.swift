@@ -24,6 +24,7 @@ class DebrisSpawner {
     private var gravityWellTimer: TimeInterval = 0
 
     var gameTime: TimeInterval = 0
+    var debrisSpeedMultiplier: CGFloat = 1.0
 
     init(scene: SKScene) {
         self.scene = scene
@@ -142,8 +143,9 @@ class DebrisSpawner {
     }
 
     private func updateDebris(deltaTime: TimeInterval) {
+        let adjustedDelta = deltaTime * Double(debrisSpeedMultiplier)
         for debris in debrisNodes {
-            debris.update(deltaTime: deltaTime)
+            debris.update(deltaTime: adjustedDelta)
         }
     }
 
@@ -194,6 +196,8 @@ class DebrisSpawner {
     // MARK: - Hazard Management
 
     private func updateHazards(deltaTime: TimeInterval, starPosition: CGPoint) {
+        let adjustedDelta = deltaTime * Double(debrisSpeedMultiplier)
+
         if hazardConfig.cometsEnabled {
             cometTimer += deltaTime
             if cometTimer >= hazardConfig.cometInterval {
@@ -201,7 +205,7 @@ class DebrisSpawner {
                 cometTimer = 0
             }
             for comet in cometNodes {
-                comet.update(deltaTime: deltaTime)
+                comet.update(deltaTime: adjustedDelta)
             }
             removeOffscreenComets()
         }
@@ -213,7 +217,7 @@ class DebrisSpawner {
                 solarFlareTimer = 0
             }
             for flare in solarFlareNodes {
-                flare.update(deltaTime: deltaTime)
+                flare.update(deltaTime: adjustedDelta)
             }
             solarFlareNodes.removeAll { $0.isFinished }
         }
@@ -225,7 +229,7 @@ class DebrisSpawner {
                 gravityWellTimer = 0
             }
             for well in gravityWellNodes {
-                well.update(deltaTime: deltaTime)
+                well.update(deltaTime: adjustedDelta)
             }
             gravityWellNodes.removeAll { $0.isFinished }
         }

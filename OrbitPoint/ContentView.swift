@@ -37,6 +37,14 @@ struct ContentView: View {
                     .zIndex(12)
                 }
 
+                if let toast = viewModel.powerUpToast {
+                    PowerUpCollectedToast(type: toast) {
+                        viewModel.powerUpToast = nil
+                    }
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+                    .zIndex(13)
+                }
+
                 if viewModel.showLoreIntro {
                     LoreIntroView {
                         viewModel.markLoreIntroSeen()
@@ -105,7 +113,18 @@ struct ContentView: View {
         case .playing:
             VStack {
                 HStack {
+                    if let powerUp = viewModel.activePowerUp {
+                        PowerUpHUDView(
+                            powerUpType: powerUp,
+                            timeRemaining: viewModel.powerUpTimeRemaining
+                        )
+                        .padding(.leading, 20)
+                        .padding(.top, 50)
+                        .transition(.scale.combined(with: .opacity))
+                    }
+
                     Spacer()
+
                     Button {
                         viewModel.pauseGame()
                     } label: {
@@ -224,6 +243,30 @@ class GameSceneDelegateAdapter: GameSceneDelegate {
     func loreFragmentCollected(id: String) {
         Task { @MainActor in
             viewModel.handleLoreFragmentCollected(id: id)
+        }
+    }
+
+    func powerUpCollected(type: PowerUpType) {
+        Task { @MainActor in
+            viewModel.handlePowerUpCollected(type: type)
+        }
+    }
+
+    func powerUpExpired() {
+        Task { @MainActor in
+            viewModel.handlePowerUpExpired()
+        }
+    }
+
+    func shieldBroken() {
+        Task { @MainActor in
+            viewModel.handleShieldBroken()
+        }
+    }
+
+    func powerUpTimeUpdated(remaining: TimeInterval) {
+        Task { @MainActor in
+            viewModel.powerUpTimeRemaining = remaining
         }
     }
 }
