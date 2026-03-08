@@ -3,6 +3,8 @@ import SwiftUI
 struct CampaignLevelCompleteView: View {
 
     let result: LevelResult
+    let xpEarned: Int
+    let didLevelUp: Bool
     let onNextLevel: () -> Void
     let onRetry: () -> Void
     let onMap: () -> Void
@@ -46,6 +48,9 @@ struct CampaignLevelCompleteView: View {
                     bonusDisplay(bonus: bonus)
                         .opacity(showContent ? 1 : 0)
                 }
+
+                XPEarnedRow(xpEarned: xpEarned, didLevelUp: didLevelUp)
+                    .opacity(showContent ? 1 : 0)
             }
             .padding(40)
             .glassBackground()

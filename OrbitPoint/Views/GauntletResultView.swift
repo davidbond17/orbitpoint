@@ -5,6 +5,8 @@ struct GauntletResultView: View {
     let rounds: Int
     let totalTime: Int
     let coinsEarned: Int
+    let xpEarned: Int
+    let didLevelUp: Bool
     let onPlayAgain: () -> Void
     let onMenu: () -> Void
 
@@ -84,6 +86,9 @@ struct GauntletResultView: View {
                 }
                 .padding(.top, 4)
                 .opacity(showContent ? 1 : 0)
+
+                XPEarnedRow(xpEarned: xpEarned, didLevelUp: didLevelUp)
+                    .opacity(showContent ? 1 : 0)
             }
             .padding(32)
             .glassBackground()

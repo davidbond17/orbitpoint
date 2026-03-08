@@ -41,6 +41,8 @@ class GameViewModel: ObservableObject {
     @Published var lastGauntletRounds: Int = 0
     @Published var lastTimeAttackTime: TimeInterval = 0
     @Published var lastTimeAttackCompleted: Bool = false
+    @Published var lastXPEarned: Int = 0
+    @Published var didLevelUp: Bool = false
 
     private let hasSeenTutorialKey = "orbitpoint.hasSeenTutorial"
     private let hasSeenLoreIntroKey = "orbitpoint.hasSeenLoreIntro"
@@ -140,6 +142,10 @@ class GameViewModel: ObservableObject {
         self.lastScore = score
         self.isNewHighScore = isNewHighScore
 
+        let xp = PlayerProgressionManager.shared.xpForGameResult(score: score, mode: currentGameMode)
+        lastXPEarned = xp
+        didLevelUp = PlayerProgressionManager.shared.addXP(xp)
+
         switch currentGameMode {
         case .dailyChallenge:
             let daily = DailyChallengeManager.shared
@@ -193,6 +199,11 @@ class GameViewModel: ObservableObject {
     func handleCampaignLevelEnd(result: LevelResult) {
         self.lastLevelResult = result
         self.lastScore = Int(result.survivalTime)
+
+        let xp = PlayerProgressionManager.shared.xpForGameResult(score: Int(result.survivalTime), mode: currentGameMode)
+        lastXPEarned = xp
+        didLevelUp = PlayerProgressionManager.shared.addXP(xp)
+
         gameState = .campaignLevelComplete
 
         if result.passed {

@@ -6,6 +6,8 @@ struct GameOverView: View {
     let earnedCoins: Int
     let isNewHighScore: Bool
     let highScore: Int
+    let xpEarned: Int
+    let didLevelUp: Bool
     let onPlayAgain: () -> Void
     let onMenu: () -> Void
 
@@ -68,6 +70,9 @@ struct GameOverView: View {
                 }
                 .padding(.top, 8)
                 .opacity(showContent ? 1 : 0)
+
+                XPEarnedRow(xpEarned: xpEarned, didLevelUp: didLevelUp)
+                    .opacity(showContent ? 1 : 0)
 
                 if !isNewHighScore {
                     HStack(spacing: 6) {

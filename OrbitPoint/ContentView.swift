@@ -183,6 +183,8 @@ struct ContentView: View {
                 earnedCoins: viewModel.lastEarnedCurrency,
                 isNewHighScore: viewModel.isNewHighScore,
                 highScore: viewModel.highScore,
+                xpEarned: viewModel.lastXPEarned,
+                didLevelUp: viewModel.didLevelUp,
                 onPlayAgain: {
                     viewModel.startGame()
                 },
@@ -196,6 +198,8 @@ struct ContentView: View {
             if let result = viewModel.lastLevelResult {
                 CampaignLevelCompleteView(
                     result: result,
+                    xpEarned: viewModel.lastXPEarned,
+                    didLevelUp: viewModel.didLevelUp,
                     onNextLevel: {
                         let nextLevel = result.levelConfig.level + 1
                         let zone = result.levelConfig.zone
@@ -226,6 +230,8 @@ struct ContentView: View {
                 streak: DailyChallengeManager.shared.currentStreak,
                 coinsEarned: viewModel.dailyChallengeCoinsEarned,
                 hasCompletedToday: DailyChallengeManager.shared.hasCompletedToday,
+                xpEarned: viewModel.lastXPEarned,
+                didLevelUp: viewModel.didLevelUp,
                 onTryAgain: {
                     viewModel.startDailyChallenge()
                 },
@@ -240,6 +246,8 @@ struct ContentView: View {
                 rounds: viewModel.lastGauntletRounds,
                 totalTime: viewModel.lastScore,
                 coinsEarned: viewModel.lastEarnedCurrency,
+                xpEarned: viewModel.lastXPEarned,
+                didLevelUp: viewModel.didLevelUp,
                 onPlayAgain: {
                     viewModel.startGauntlet()
                 },
@@ -254,6 +262,8 @@ struct ContentView: View {
                 timeSurvived: Int(viewModel.lastTimeAttackTime),
                 completed: viewModel.lastTimeAttackCompleted,
                 coinsEarned: viewModel.lastEarnedCurrency,
+                xpEarned: viewModel.lastXPEarned,
+                didLevelUp: viewModel.didLevelUp,
                 onPlayAgain: {
                     viewModel.startTimeAttack()
                 },

@@ -8,6 +8,8 @@ struct DailyChallengeResultView: View {
     let streak: Int
     let coinsEarned: Int
     let hasCompletedToday: Bool
+    let xpEarned: Int
+    let didLevelUp: Bool
     let onTryAgain: () -> Void
     let onMenu: () -> Void
 
@@ -108,6 +110,9 @@ struct DailyChallengeResultView: View {
                 }
                 .padding(.top, 4)
                 .opacity(showContent ? 1 : 0)
+
+                XPEarnedRow(xpEarned: xpEarned, didLevelUp: didLevelUp)
+                    .opacity(showContent ? 1 : 0)
             }
             .padding(32)
             .glassBackground()
